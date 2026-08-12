@@ -2,9 +2,9 @@ import type { LocalizedText } from "./i18n";
 import type { WorkflowStatus } from "./game/workflow";
 
 /**
- * 제품명·화면 문구·색은 이 파일에서만 관리합니다.
- * 다섯 언어를 함께 적는 값은 한 언어라도 빠지면 컴파일되지 않습니다.
- * 제품명은 번역하지 않지만, 직원 이름은 직함과 함께 그 언어권에서 쓰는 이름으로 적습니다.
+ * Product names, UI copy, and colors are managed only in this file.
+ * Localized values must include all five languages or compilation fails.
+ * Product names are not translated, but employee names, alongside their titles, use names natural to each locale.
  */
 export const COMPANY = {
   name: "Draftroom",
@@ -38,7 +38,7 @@ export const COMPANY = {
   tagline: LocalizedText;
 };
 
-/** 화면 색상은 설정에서 CSS 변수로 전달합니다. */
+/** UI colors are passed from the configuration as CSS variables. */
 export const THEME = {
   app: "#0b1722",
   frame: "#fffaf0",

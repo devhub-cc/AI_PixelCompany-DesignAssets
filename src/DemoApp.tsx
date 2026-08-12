@@ -27,7 +27,7 @@ const themeStyle = {
   "--color-shadow": THEME.shadow,
 } as CSSProperties;
 
-/** 데모 전용 문구. 제품 문구는 i18n.ts와 company.config.ts가 가진다. */
+/** Demo-only copy. Product copy lives in i18n.ts and company.config.ts. */
 const UI = {
   title: {
     ko: "픽셀 오피스 디자인 데모",

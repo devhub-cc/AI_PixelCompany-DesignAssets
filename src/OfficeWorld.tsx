@@ -47,22 +47,22 @@ export type OfficeWorldProps = {
   locale: Locale;
   clock: { label: string; time: string };
   /**
-   * 화면 연출용 표현 이벤트. 사무실 바닥은 이 중에서
-   * 사람이 움직이는 것(`say`·`arrive`·`depart`)만 본다.
+   * Presentation events for visual staging. The office floor consumes only
+   * events that move people (`say`, `arrive`, and `depart`).
    */
   officeEvents?: readonly OfficeEvent[];
   /**
-   * 이벤트를 공급하는 쪽이 바뀌었다는 표시. 값이 달라지면 전원을 다시 출근시킨다.
-   * 이 신호가 없으면 공급자를 되돌려도 빈 사무실이 그대로 남는다.
+   * Indicates that the event provider changed. A new value brings everyone back into the office.
+   * Without this signal, switching the provider back would leave the office empty.
    */
   officeSession?: number;
-  /** 재생 배속과 사람의 실제 걸음을 같은 시간축에 둔다. 기본값 1. */
+  /** Keeps playback speed and actual walking on the same time axis. Defaults to 1. */
   motionTimeScale?: number;
-  /** 출근 이벤트를 받은 전원이 실제 자리까지 걸어왔는지 알리는 신호. */
+  /** Signals whether everyone who received an arrival event has walked to their actual seat. */
   onArrivalSettledChange?: (settled: boolean) => void;
   /**
-   * 정원은 디스크가 아니라 이 화면이 들고 있다(슬라이더는 저장 전에도 바닥을 바꾼다).
-   * 이벤트 공급자가 같은 수를 봐야 하므로 바뀔 때마다 올려 준다.
+   * The screen, not the disk, owns the headcount (the slider changes the floor before saving).
+   * The event provider must see the same count, so report every change.
    */
   onHeadcountChange?: (headcount: number) => void;
 };
@@ -70,24 +70,24 @@ export type OfficeWorldProps = {
 type WorldStyle = CSSProperties & Record<`--${string}`, string | number>;
 type Direction = "left" | "right" | "up" | "down";
 type AgentMotion = {
-  /** 지금 향하고 있는 타일. 도착 판정과 경로 진행의 기준점. */
+  /** The tile currently being approached. The reference point for arrival checks and path progress. */
   point: OfficePoint;
-  /** 보간 출발 타일. point 와 사이를 progress 로 메운다. */
+  /** The interpolation start tile. progress fills the gap between it and point. */
   from: OfficePoint;
-  /** 0 → 1. 1 에 닿으면 point 로 스냅하고 다음 타일을 집는다. */
+  /** 0 → 1. At 1, snap to point and select the next tile. */
   progress: number;
   path: OfficePoint[];
   goal: string;
   layoutKey: string;
   direction: Direction;
   moving: boolean;
-  /** 같은 칸에 선 직원끼리 완전히 겹치지 않도록 주는 타일 단위 미세 오프셋. */
+  /** A subtle tile-unit offset that keeps employees on the same tile from overlapping exactly. */
   jitter: number;
-  /** 출근 연출 — 이 시각(performance.now 기준) 전에는 화면에 없다. */
+  /** Arrival staging — absent from the screen until this performance.now timestamp. */
   arriveAt: number;
-  /** 제자리에 선 직원이 매 프레임 경로를 다시 찾지 않도록 두는 재검토 시각. */
+  /** Reconsideration time that prevents a stationary employee from finding a path every frame. */
   decideAt: number;
-  /** 퇴근 중 — 자리가 아니라 문으로 향하고, 문에 닿으면 화면에서 빠진다. */
+  /** Departing — heads for a door instead of a seat and leaves the screen upon reaching it. */
   leaving: boolean;
   speech: string;
   speechTone: "talk" | "think";
@@ -131,7 +131,7 @@ const WORKSPACE_DIRECTIONS = [
   { primary: "up", support: "left" },
 ] as const satisfies readonly { primary: Direction; support: Direction }[];
 const AMENITY_DIRECTIONS = ["up", "left", "right", "up"] as const satisfies readonly Direction[];
-/** 스프라이트 6종을 서로 다른 사람처럼 보이게 하는 미세 색상 편차. 크게 틀면 살색이 무너진다. */
+/** Subtle hue variations make the six sprites look like different people. Larger shifts distort skin tones. */
 const AGENT_HUES = [0, -34, 18, -16, 34, -50] as const;
 
 function homePoint(agent: (typeof AGENTS)[number]): OfficePoint {
@@ -149,8 +149,8 @@ function homeGoal(agent: (typeof AGENTS)[number]) {
 function homeDirection(agent: (typeof AGENTS)[number]): Direction {
   if (agent.primary) return WORKSPACE_DIRECTIONS[agent.workspaceIndex].primary;
   if (agent.teamIndex === 1) return WORKSPACE_DIRECTIONS[agent.workspaceIndex].support;
-  // 편의 공간 좌석은 방마다 개수가 달라 회전 배정된다. agentIndex 로는 어느 방에 앉는지 알 수 없으니
-  // 실제 자리에서 방을 되짚어야 마지막 몇 명이 엉뚱한 쪽을 보고 앉지 않는다.
+  // Amenity rooms have different seat counts, so assignments rotate among them. agentIndex alone cannot identify the room,
+  // so trace it from the actual seat to keep the last few employees from sitting in the wrong direction.
   const seat = assignedAmenitySeat(agent.agentIndex);
   const zoneIndex = AMENITY_ZONES.findIndex((zone) =>
     seat.col >= zone.col
@@ -165,55 +165,55 @@ function seatAsset(direction: Direction) {
   return `/office-assets/furniture/CUSHIONED_CHAIR/CUSHIONED_CHAIR_${view}.png`;
 }
 
-/** rAF 안에서 부르는 DOM 헬퍼 — 값이 그대로면 건드리지 않아야 스타일 재계산이 안 생긴다. */
+/** DOM helper called inside rAF — leave unchanged values alone to avoid style recalculation. */
 function attr(el: HTMLElement, name: string, value: string) {
   if (el.getAttribute(name) !== value) el.setAttribute(name, value);
 }
 
 /**
- * 걸음은 타일 단위로 끊지 않고 매 프레임 보간한다. 예전에는 200~300ms 마다 한 칸씩
- * 순간이동시키고 CSS `transition: left/top` 이 따라잡게 했는데, 트랜지션 길이(0.3s)가
- * 걸음 주기보다 길어 매번 중간에 잘리면서 고무줄처럼 끌려 보였다.
+ * Interpolate walking every frame instead of breaking it into tile-sized steps. Previously, employees
+ * teleported one tile every 200–300ms while CSS `transition: left/top` caught up, but the 0.3s transition
+ * exceeded the step interval, so every transition was cut short and looked like rubber-band dragging.
  */
 const WALK_TILES_PER_SEC = 3.6;
-// 기본 배치의 가장 먼 산책 지점은 자리까지 73칸(보통 걸음 약 20초)이다.
-// 과업 시작 뒤의 복귀에만 두 배를 써서 장면을 당기되 순간이동은 하지 않는다.
+// The farthest stroll point in the default layout is 73 tiles from its seat, about 20 seconds at normal speed.
+// Double only the return speed after a task starts to tighten the scene without teleporting.
 const RETURN_TILES_PER_SEC = WALK_TILES_PER_SEC * 2;
-/** 프레임이 길게 튀어도 시뮬레이션이 순간이동하지 않도록 한 번에 진행할 최대 시간. */
+/** Maximum time advanced at once, preventing simulation teleports after a long frame. */
 const MAX_FRAME_SECONDS = 0.05;
-/** 스프라이트 한 칸(48×96)의 발밑을 타일 중심에 맞추기 위한 오프셋. */
+/** Offset that aligns the feet of a 48×96 sprite frame with the tile center. */
 const SPRITE_W = 48;
 const SPRITE_H = 96;
-/** 서 있을 때와 앉아 있을 때 발이 닿는 높이가 다르다. 예전 CSS 의 -80% / -67% 를 그대로 옮긴 값. */
+/** Feet land at different heights when standing and sitting. These preserve the old CSS values of -80% / -67%. */
 const FOOT_ANCHOR = 0.8;
 const SEATED_FOOT_ANCHOR = 0.67;
 /**
- * 출근 연출 — 문에서 한 명씩 터져 나오는 간격.
- * 자리까지 걸어가는 데 6초쯤 걸리므로, 이보다 촘촘하면 문 앞에 사람이 쌓인다.
+ * Arrival staging — interval between people emerging from a door.
+ * Walking to a seat takes about six seconds, so a tighter interval causes a crowd at the door.
  */
 const ARRIVAL_STAGGER_MS = 420;
-/** 카메라는 목표로 감쇠 이동한다. 값이 클수록 빠르게 따라붙는다. */
+/** The camera eases toward its target. Larger values catch up faster. */
 const CAMERA_EASE = 0.11;
 /**
- * 스프라이트는 48×96 고정인데 타일은 무대 크기에 따라 15px 안팎까지 작아진다.
- * 그대로 두면 한 사람이 3×7 타일을 차지해 가구보다 커지므로, 키를 타일 수로 못박는다.
+ * Sprites are fixed at 48×96, while tiles can shrink to about 15px with the stage.
+ * Unscaled, one person occupies 3×7 tiles and exceeds the furniture, so lock height to a tile count.
  */
 const AGENT_TILES_TALL = 2.6;
 const MIN_AGENT_SCALE = 0.3;
-/** 이름표가 이 정도로도 안 커지면 읽을 수 없다 — 접어서 시야를 비워 준다. */
+/** If a nameplate cannot grow even this large, it is unreadable — collapse it to clear the view. */
 const LABEL_LEGIBLE_SCALE = 0.58;
 /**
- * 위쪽 밴드에서 이 행까지 앉은 사람은 이름표가 무대 위로 넘어가므로 아래로 밀어 준다
- * (`.world-agent[data-edge-seat]`). 행 5 이하의 위쪽 밴드 좌석이 전부 해당된다.
- * 아래쪽 밴드 최상단은 행 20 이고 그 위가 복도라 넘칠 곳이 없다 — 이 값에 걸리지 않는다.
+ * Nameplates for people seated through this row in the upper band overflow above the stage, so push them down
+ * (`.world-agent[data-edge-seat]`). This covers every upper-band seat with row <= 5.
+ * The lower band's top row is 20 with a corridor above it, so nothing can overflow there and this does not apply.
  */
 const TOP_BAND_SEAT_ROW = 5;
 
 const clamp = (value: number, limit: number) => Math.min(limit, Math.max(-limit, value));
 
 /**
- * uid 는 저장본에 남으므로 세션이 달라도 겹치면 안 된다. 시각만으로는 같은 밀리초에 두 개가 나올 수 있어
- * 난수를 덧댄다. 컴포넌트 밖에 두는 이유는 렌더 함수 안에서 부르면 순수하지 않기 때문이다.
+ * A uid persists in saved data, so it must not collide across sessions. Time alone can produce two values in the
+ * same millisecond, so append randomness. This lives outside the component because calling it during render is impure.
  */
 function newFurnitureUid() {
   return globalThis.crypto?.randomUUID?.()
@@ -241,7 +241,7 @@ function homeMotion(agent: (typeof AGENTS)[number]): AgentMotion {
   };
 }
 
-/** agentIndex 만으로 정해지는 고정 오프셋 — 매 프레임 흔들리면 오히려 산만하다. */
+/** Fixed offset determined only by agentIndex — changing it every frame would be distracting. */
 function jitterFor(agentIndex: number) {
   return (((agentIndex * 37) % 11) - 5) * 0.03;
 }
@@ -251,8 +251,8 @@ const AGENT_BY_ID: ReadonlyMap<string, (typeof AGENTS)[number]> = new Map(
 );
 
 /**
- * 사람이 움직이는 이벤트만 걸러 움직임에 반영한다.
- * 컴포넌트 밖에 두는 이유는 rAF 루프와 같은 자료를 고쳐야 하기 때문이다.
+ * Filter for events that move people and apply them to motion.
+ * This lives outside the component because it must mutate the same data as the rAF loop.
  */
 function applyOfficeEvents(
   events: readonly OfficeEvent[],
@@ -279,7 +279,7 @@ function applyOfficeEvents(
   }
 }
 
-/** 출근 — 문이나 엘리베이터 앞에 세워 두고 정해진 시각에 세계로 들여보낸다. */
+/** Arrival — stage employees by a door or elevator and admit them to the world at the scheduled time. */
 function sendToDoor(agent: (typeof AGENTS)[number], motion: AgentMotion, arriveAt: number) {
   const spawn = spawnPointFor(agent.agentIndex);
   motion.point = { ...spawn.point };
@@ -288,7 +288,7 @@ function sendToDoor(agent: (typeof AGENTS)[number], motion: AgentMotion, arriveA
   motion.path = [];
   motion.layoutKey = "";
   motion.goal = homeGoal(agent);
-  // 정문은 아래쪽 벽이라 올려다보며 들어오고, 엘리베이터는 동쪽 끝이라 복도 쪽인 서쪽을 본다.
+  // The main entrance is on the bottom wall, so employees enter facing up; the elevator is at the east end, so they face west toward the corridor.
   motion.direction = spawn.via === "elevator" ? "left" : "up";
   motion.moving = false;
   motion.leaving = false;
@@ -297,14 +297,14 @@ function sendToDoor(agent: (typeof AGENTS)[number], motion: AgentMotion, arriveA
 }
 
 /**
- * 정원이 바뀌면 지원 인력을 자리로 되돌린다. 단, **자리를 떠나 있는 사람은 건드리지 않는다** —
- * 문에서 걸어 들어오는 중이든, 산책 중이든, 산책을 마치고 돌아오는 중이든 마찬가지다.
- * 슬라이더 한 칸마다 그들을 좌석으로 갈아 끼우면 한 프레임에 20~50타일을 뛰는 순간이동으로 보인다.
+ * When headcount changes, return support staff to their seats. However, **do not touch anyone away from their seat** —
+ * whether they are entering from a door, strolling, or returning from a stroll.
+ * Reseating them at every slider step looks like a 20–50-tile teleport in one frame.
  *
- * 산책 인원 재조정은 이 함수가 아니라 `balanceStroll` 이 맡는다. 그쪽은 목표 인원을 보고
- * 걷게 하거나 자리로 돌려보내므로, 여기서 좌석으로 되돌리지 않아도 정원 변화에 맞춰 다시 맞는다.
- * 퇴근한 사람(`arriveAt` 무한대)은 되돌린다 — 출근 effect 가 다시 문으로 부른다.
- * 되돌릴 때도 **위치만** 바꾼다. 그 사람이 들고 있던 나머지 상태는 아래 주석의 이유로 지키지 않으면 안 된다.
+ * `balanceStroll`, not this function, rebalances the strolling population. It sends people walking or back to their
+ * seats based on the target, so it adapts to headcount changes without reseating them here.
+ * Reset departed employees (`arriveAt` at infinity) — the arrival effect sends them back to a door.
+ * Even when resetting, change **only position**. The rest of their state must be preserved for the reason below.
  */
 function resetSupportMotions(current: Record<string, AgentMotion>): Record<string, AgentMotion> {
   return Object.fromEntries(AGENTS.map((agent) => {
@@ -316,9 +316,9 @@ function resetSupportMotions(current: Record<string, AgentMotion>): Record<strin
       && (motion.point.col !== home.col || motion.point.row !== home.row);
     if (awayFromSeat) return [agent.id, motion];
     /*
-     * 여기서 해야 하는 일은 **자리로 되돌리는 것 하나뿐**이므로 위치만 덮고 나머지는 그대로 둔다.
-     * `homeMotion` 을 통째로 덮고 지켜야 할 필드를 되살리는 방식은 하나만 빠뜨려도 조용히 틀린다.
-     * 덮을 것을 고르는 지금 방식은 빠뜨리면 사람이 자리로 안 돌아가는, 눈에 보이는 증상이 된다.
+     * The only job here is to **return employees to their seats**, so overwrite position and leave everything else intact.
+     * Replacing all of `homeMotion` and then restoring protected fields fails silently if even one field is missed.
+     * With the current approach of choosing fields to overwrite, an omission visibly leaves an employee away from their seat.
      */
     const seatedAgain = homeMotion(agent);
     if (!motion) return [agent.id, seatedAgain];
@@ -429,7 +429,7 @@ export function OfficeWorld({
     present: DEFAULT_OFFICE_LAYOUT,
     future: [],
   });
-  // 직원 움직임은 상태가 아니라 ref 다. 프레임마다 setState 하면 편집기까지 통째로 다시 그려진다.
+  // Employee motion lives in a ref, not state. Calling setState every frame would rerender the entire editor too.
   const motionsRef = useRef<Record<string, AgentMotion>>(initialMotions());
   const agentEls = useRef(new Map<string, HTMLLIElement>());
   const cameraEl = useRef<HTMLDivElement>(null);
@@ -442,7 +442,7 @@ export function OfficeWorld({
   const [selectedUid, setSelectedUid] = useState<string | null>(null);
   const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null);
   const [cameraView, setCameraView] = useState<CameraView>("full");
-  // 카메라가 진행을 따라갈지. 끄면 한 방을 계속 비출 수 있다.
+  // Whether the camera follows progress. Turn it off to keep one room in view.
   const [follow, setFollow] = useState(true);
   const [cameraPan, setCameraPan] = useState<{ x: number; y: number; workspaceId: string | null }>({
     x: 0,
@@ -450,23 +450,23 @@ export function OfficeWorld({
     workspaceId: null,
   });
   const [reducedMotion, setReducedMotion] = useState(false);
-  // 앞 공간이 끝나고 다음 공간이 열릴 때만 생기는 서류 한 장. 애니메이션이 끝나면 스스로 사라진다.
+  // A document shown only when one space finishes and the next opens. It removes itself after the animation.
   const [handoff, setHandoff] = useState<{ from: OfficePoint; to: OfficePoint; id: number } | null>(null);
   const handoffId = useRef(0);
   const lastActiveWorkspaceId = useRef<string | null>(null);
-  // 문구가 아니라 키를 담아 두어야 언어를 바꿔도 마지막 안내가 함께 바뀐다.
+  // Store the key, not the copy, so the latest notice changes with the language.
   const [saveState, setSaveState] = useState<MessageKey>("layout.editable");
   const [saving, setSaving] = useState(false);
   const editRevision = useRef(0);
-  // 마지막으로 전원을 출근시킨 세션. 정원 변경과 새 하루를 구분한다.
+  // The last session that brought everyone in. Distinguishes a headcount change from a new day.
   const arrivedSession = useRef<number | null>(null);
   const arrivedHeadcount = useRef(0);
   const roamTarget = useRef(strollTargetForHeadcount(DEFAULT_OFFICE_LAYOUT.headcount));
   const roamChangeAt = useRef(0);
   const walkCursor = useRef(0);
-  // 카메라 이동은 매 프레임 읽으므로 상태를 ref 로도 들고 있어야 한다.
+  // Camera motion is read every frame, so the state must also be kept in a ref.
   const panOffset = useRef({ x: 0, y: 0 });
-  // 이미 반영한 이벤트 배치. 같은 배열이 다시 오면 무시한다.
+  // The event batch already applied. Ignore the same array if it arrives again.
   const appliedEvents = useRef<readonly OfficeEvent[] | null>(null);
   const reportedArrivalsSettled = useRef<boolean | null>(null);
   const safeMotionTimeScale = Number.isFinite(motionTimeScale) && motionTimeScale > 0 ? motionTimeScale : 1;
@@ -480,7 +480,7 @@ export function OfficeWorld({
     const previousTimeScale = motionTimeScaleRef.current;
     if (previousTimeScale !== safeMotionTimeScale) {
       const now = performance.now();
-      // 이미 예약된 출근도 새 배속으로 남은 간격을 다시 계산해야 버튼의 의미가 즉시 맞는다.
+      // Scheduled arrivals must also recalculate their remaining intervals at the new speed so the button takes effect immediately.
       for (const motion of Object.values(motionsRef.current)) {
         if (motion.arriveAt > now) {
           motion.arriveAt = now + ((motion.arriveAt - now) * previousTimeScale) / safeMotionTimeScale;
@@ -493,15 +493,15 @@ export function OfficeWorld({
   const selected = layout.furniture.find(({ uid }) => uid === selectedUid) ?? null;
   const theme = OFFICE_THEMES[layout.theme];
   const visibleAgents = AGENTS.slice(0, layout.headcount);
-  // 실제 업무 의미는 이 한 값만 소유한다. 승인 대기에는 시각·동작·접근성 모두 업무 중이 아니다.
+  // This single value owns the actual work semantics. While awaiting approval, visuals, motion, and accessibility all indicate not working.
   const workingWorkspaceId = workflowStatus === "running" ? activeWorkspaceId : null;
   const taskFocus = workingWorkspaceId !== null;
   const activeZone = WORKSPACE_ZONES.find(({ id }) => id === activeWorkspaceId);
   const cameraClose = cameraView === "close" && !editorOpen;
   const cameraScale = cameraClose ? 1.65 : 1;
   /*
-   * 끌 여유는 보기 모드가 아니라 배율에서 나온다. 1 배에서는 층 전체가 이미 프레임 안이라
-   * 끌 곳이 없다. 나중에 확대가 늘면 이 조건만으로 드래그가 따라 켜진다.
+   * Drag room comes from scale, not view mode. At 1×, the entire floor already fits in the frame,
+   * leaving nowhere to drag. If zoom increases later, this condition alone enables dragging with it.
    */
   const canPan = cameraScale > 1;
   const cameraFocus = activeZone
@@ -510,7 +510,7 @@ export function OfficeWorld({
   const visibleCameraPan = cameraPan.workspaceId === activeWorkspaceId ? cameraPan : { x: 0, y: 0 };
   const visibleSelectedAgentId = visibleAgents.some(({ id }) => id === selectedAgentId) ? selectedAgentId : null;
 
-  // 카메라는 CSS 트랜지션이 아니라 rAF 에서 목표로 감쇠 이동한다. 여기서는 목표만 갱신한다.
+  // The camera eases toward its target in rAF, not via a CSS transition. Update only the target here.
   useEffect(() => {
     camTarget.current.scale = cameraScale;
     panOffset.current = cameraClose
@@ -521,13 +521,13 @@ export function OfficeWorld({
       camTarget.current.y = 0.5;
       return;
     }
-    // 추적을 끈 동안에는 진행이 옮겨 가도 보던 자리를 지킨다.
+    // While tracking is off, keep the current view even when progress moves elsewhere.
     if (!follow) return;
     camTarget.current.x = cameraFocus.col / OFFICE_COLS;
     camTarget.current.y = cameraFocus.row / OFFICE_ROWS;
   }, [follow, cameraClose, cameraFocus.col, cameraFocus.row, cameraScale, visibleCameraPan.x, visibleCameraPan.y]);
 
-  // 픽셀 좌표로 그리려면 무대 크기를 알아야 한다. 리사이즈될 때만 다시 잰다.
+  // Pixel coordinates require the stage size. Measure it again only on resize.
   useEffect(() => {
     const node = stageEl.current;
     if (!node) return;
@@ -541,43 +541,43 @@ export function OfficeWorld({
     return () => observer.disconnect();
   }, []);
 
-  // 출근 연출 — 정원이 바뀌거나 세계가 열릴 때, 문과 엘리베이터에서 한 명씩 터져 나온다.
+  // Arrival staging — when headcount changes or the world opens, employees emerge one by one from the door and elevator.
   useEffect(() => {
     if (!ready || reducedMotion) return;
     const start = performance.now();
     const motions = motionsRef.current;
-    // 세션이 바뀌면 하루가 새로 시작한 것이므로 전원이 다시 출근한다.
+    // A session change starts a new day, so everyone arrives again.
     const newDay = arrivedSession.current !== officeSession;
     arrivedSession.current = officeSession;
-    // 직전까지 화면에 있던 정원. 정원을 늘려 새로 생긴 사람은 이 수보다 뒤에 있다.
+    // The headcount previously on screen. Employees added by an increase come after this count.
     const known = arrivedHeadcount.current;
     arrivedHeadcount.current = layout.headcount;
     let order = 0;
     for (const agent of AGENTS.slice(0, layout.headcount)) {
       const motion = motions[agent.id];
       /*
-       * 정원만 늘렸을 때는 이미 안에 있는 사람을 다시 부르지 않는다 — 슬라이더 한 칸마다 전원이 재출근했다.
-       * 다만 새로 생긴 사람은 화면 밖 인원을 매 프레임 homeMotion 으로 되돌리는 경로 때문에
-       * arriveAt 이 0 이라, 정원 비교를 함께 보지 않으면 문을 거치지 않고 자리에 튀어나온다.
+       * When only headcount increases, do not recall people already inside — otherwise everyone reentered at each slider step.
+       * New employees, however, have arriveAt set to 0 because the path that resets off-screen employees to homeMotion
+       * runs every frame. Without the headcount check, they pop into their seats without passing through a door.
        */
       if (!newDay && agent.agentIndex < known && motion.arriveAt <= start) continue;
       sendToDoor(agent, motion, start + (order * ARRIVAL_STAGGER_MS) / motionTimeScaleRef.current);
       order += 1;
     }
-    // 정원이 바뀌거나 이벤트 공급원이 바뀔 때 다시 출근시킨다. 레이아웃 편집 중에는 걸리지 않는다.
+    // Run arrivals again when headcount or the event provider changes. Layout editing does not trigger this.
   }, [layout.headcount, officeSession, ready, reducedMotion]);
 
-  // 슬라이더는 저장하지 않아도 바닥을 바꾼다. 이벤트 공급자가 같은 수를 봐야 하므로 즉시 알린다.
+  // The slider changes the floor without saving. Notify immediately so the event provider sees the same count.
   useEffect(() => {
     onHeadcountChange?.(layout.headcount);
   }, [layout.headcount, onHeadcountChange]);
 
-  // 표현 이벤트 중 사람이 움직이는 것만 여기서 소비한다. 나머지는 패널이 읽는다.
+  // Consume only presentation events that move people here. The panel reads the rest.
   useEffect(() => {
     /*
-     * 같은 배치를 두 번 먹으면 안 된다. 이벤트가 없는 틱에는 배열이 그대로 남아 있으므로,
-     * 언어를 바꾸거나 움직임 설정이 돌아오는 것만으로 effect 가 다시 돌면 마지막 배치가
-     * 통째로 재생된다 — 자리에 앉아 있던 전원이 현관으로 순간이동해 출근을 다시 한다.
+     * Do not consume the same batch twice. The array remains unchanged on ticks without events, so if the effect reruns
+     * merely because the language changed or motion was reenabled, the entire last batch replays — everyone seated
+     * teleports to the entrance and arrives again.
      */
     if (!officeEvents?.length || reducedMotion || appliedEvents.current === officeEvents) return;
     appliedEvents.current = officeEvents;
@@ -597,16 +597,16 @@ export function OfficeWorld({
 
   useEffect(() => {
     roamTarget.current = strollTargetForHeadcount(layout.headcount);
-    // rAF 루프가 performance.now() 로 비교하므로 같은 시간축을 써야 한다.
+    // The rAF loop compares against performance.now(), so use the same time axis.
     roamChangeAt.current = performance.now() + 20_000 + Math.random() * 20_000;
   }, [layout.headcount]);
 
   useEffect(() => {
     const previousId = lastActiveWorkspaceId.current;
-    // 한 공간이 끝나면 다음 공간이 열리기 전에 활성 공간이 잠시 비므로, 빈 값으로 덮으면 짝을 잃는다.
+    // After one space finishes, the active space is briefly empty before the next opens; overwriting with empty loses the pair.
     if (activeWorkspaceId) lastActiveWorkspaceId.current = activeWorkspaceId;
     if (reducedMotion || !previousId || !activeWorkspaceId || previousId === activeWorkspaceId) return;
-    // 앞 공간이 실제로 끝났을 때만 넘긴다. 중단이나 실패로 비워진 자리는 넘길 것이 없다.
+    // Hand off only when the previous space actually completed. An interruption or failure leaves nothing to hand off.
     if (workspaceStatuses[previousId] !== "completed") return;
     const from = WORKSPACE_ZONES.find(({ id }) => id === previousId)?.door;
     const to = WORKSPACE_ZONES.find(({ id }) => id === activeWorkspaceId)?.door;
@@ -619,7 +619,7 @@ export function OfficeWorld({
     if (!ready) return;
     const taskSession = workflowStatus === "running" || workflowStatus === "awaiting_approval";
 
-    /** 산책 인원을 목표치에 맞춰 늘리거나 되돌린다. */
+    /** Adjust the strolling population to its target, sending employees out or back. */
     const balanceStroll = (now: number, motions: Record<string, AgentMotion>, visible: typeof AGENTS) => {
       if (now >= roamChangeAt.current) {
         roamTarget.current = strollTargetForHeadcount(layout.headcount);
@@ -651,8 +651,8 @@ export function OfficeWorld({
     };
 
     /**
-     * 마주 오는 사람 때문에 길이 막혔을 때 비어 있는 옆칸(대개 왔던 길)으로 한 칸 물러난다.
-     * 재검토 간격이 사람마다 달라서(220 + agentIndex 기반) 둘이 동시에 같은 칸을 노리지 않는다.
+     * When an oncoming person blocks the path, step back one tile into an empty adjacent tile, usually the previous one.
+     * Each employee has a different reconsideration interval—220ms plus an agent-index-based offset—so two do not target the same tile simultaneously.
      */
     const stepAside = (from: OfficePoint, occupied: Set<string>): OfficePoint | null => {
       for (const [dc, dr] of [[0, -1], [1, 0], [0, 1], [-1, 0]] as const) {
@@ -663,11 +663,11 @@ export function OfficeWorld({
       return null;
     };
 
-    /** 한 칸을 다 걸은 직원이 다음 칸을 고른다. 경로가 없으면 그 자리에 선다. */
+    /** An employee who finishes one tile chooses the next. If no path exists, they stay there. */
     const decide = (agent: (typeof AGENTS)[number], motion: AgentMotion, now: number, occupied: Set<string>) => {
       occupied.delete(`${motion.point.col},${motion.point.row}`);
       const working = agent.primary && workingWorkspaceId === agent.workspaceId;
-      // 퇴근 중이면 자리도 산책도 없다. 문 하나만 보고 간다.
+      // While departing, ignore seats and strolls and head only for a door.
       const normalTarget = motion.leaving
         ? spawnPointFor(agent.agentIndex).point
         : working
@@ -687,7 +687,7 @@ export function OfficeWorld({
           : normalTarget;
       const targetGoal = walkingOut || walkingBack || returning ? goal : normalGoal;
 
-      /** 제자리에 서고, 다음 재검토까지 텀을 둔다 — 안 그러면 매 프레임 길찾기가 돈다. */
+      /** Stand still and wait until the next reconsideration — otherwise pathfinding runs every frame. */
       const settle = () => {
         motion.path = [];
         motion.layoutKey = pathLayoutKey;
@@ -698,7 +698,7 @@ export function OfficeWorld({
 
       if (samePoint(motion.point, target)) {
         if (motion.leaving) {
-          // 문에 닿았다 — 오늘은 여기까지. 다음 출근 이벤트가 다시 불러들인다.
+          // Reached the door — done for today. The next arrival event brings them back.
           motion.goal = normalGoal;
           motion.moving = false;
           motion.arriveAt = Number.POSITIVE_INFINITY;
@@ -713,15 +713,15 @@ export function OfficeWorld({
         path = findOfficePath(motion.point, target, layout, occupied);
         goal = targetGoal;
       }
-      // 경로가 비면 `path[0]` 은 undefined 고 `stepAside` 는 null 을 준다. 둘 다 "다음 칸 없음"이므로
-      // 타입을 nullable 로 적어야 아래 `if (!point)` 가 실제로 하는 일과 선언이 어긋나지 않는다.
+      // With an empty path, `path[0]` is undefined and `stepAside` returns null. Both mean "no next tile",
+      // so the type must be nullable to match what the `if (!point)` below actually does.
       let point: OfficePoint | null = path[0] ?? null;
       if (point && occupied.has(`${point.col},${point.row}`)) {
         path = findOfficePath(motion.point, target, layout, occupied);
         point = path[0] ?? null;
       }
       if (!point && findOfficePath(motion.point, target, layout).length) {
-        // 길 자체는 있는데 사람이 막고 있다. 아무도 물러나지 않으면 1칸 통로에서 영구 교착이다.
+        // A path exists, but people block it. If nobody steps back, a one-tile corridor deadlocks permanently.
         point = stepAside(motion.point, occupied);
       }
       if (!point) {
@@ -750,10 +750,10 @@ export function OfficeWorld({
       for (const agent of visible) {
         const motion = motions[agent.id];
         /*
-         * 문 밖에 있는 사람은 바닥을 차지하지 않는다.
-         * 퇴근해 화면에서 빠진 직원의 point 는 문 타일에 그대로 남는데, 그를 점유로 세면
-         * 그 칸이 영원히 막혀 뒤따라 나가려던 전원이 경로를 못 찾고 입구에 갇힌다.
-         * 문은 두 칸뿐이라 정원이 몇이든 딱 두 명만 퇴근하고 나머지가 유일한 통로를 막는다.
+         * People outside a door do not occupy the floor.
+         * A departed employee's point remains on the door tile after leaving the screen. Counting them as occupying it
+         * blocks that tile forever, so everyone following cannot find a path and gets trapped at the entrance.
+         * With only two door tiles, exactly two employees depart at any headcount while the rest block the sole route.
          */
         if (now < motion.arriveAt) continue;
         occupied.add(`${motion.point.col},${motion.point.row}`);
@@ -761,7 +761,7 @@ export function OfficeWorld({
 
       for (const agent of visible) {
         const motion = motions[agent.id];
-        // 아직 문 밖이면 세계에 없는 것으로 친다.
+        // Before entering through a door, treat the employee as outside the world.
         if (now < motion.arriveAt) continue;
         if (motion.speechUntil && now >= motion.speechUntil) {
           motion.speech = "";
@@ -784,7 +784,7 @@ export function OfficeWorld({
     const paint = (now: number) => {
       const motions = motionsRef.current;
       const visible = AGENTS.slice(0, layout.headcount);
-      // 작은 화면의 다른 탭에서 무대가 0×0으로 숨더라도 물리 출근 완료는 계속 보고한다.
+      // Keep reporting physical arrival completion even if another tab hides the stage at 0×0 on a small screen.
       const arrivalsSettled = visible.every((agent) => {
         const motion = motions[agent.id];
         return now >= motion.arriveAt && !motion.moving && samePoint(motion.point, homePoint(agent));
@@ -801,24 +801,24 @@ export function OfficeWorld({
       const crowded = layout.headcount > 16;
       const target = camTarget.current;
       const view = cam.current;
-      // 움직임을 줄이기로 한 사용자에게는 감쇠 없이 바로 붙인다.
+      // For users who prefer reduced motion, snap into place without easing.
       const ease = reducedMotion ? 1 : CAMERA_EASE;
       view.x += (target.x - view.x) * ease;
       view.y += (target.y - view.y) * ease;
       view.scale += (target.scale - view.scale) * ease;
-      // 사람 키를 타일에 맞춘다. 무대가 좁아지면 같이 작아져야 가구와 비율이 유지된다.
+      // Fit employee height to the tiles. It must shrink with a narrower stage to preserve proportions with furniture.
       const agentScale = Math.min(1, Math.max(MIN_AGENT_SCALE, (tileH * AGENT_TILES_TALL) / SPRITE_H));
       const camNode = cameraEl.current;
       if (camNode) {
-        // 확대한 만큼만 밀 수 있다. 넘기면 바닥이 프레임 밖으로 빠져 빈 무대가 드러난다.
+        // Pan only by the zoomed amount. Going farther moves the floor outside the frame and exposes an empty stage.
         const limitX = Math.max(0, ((view.scale - 1) / 2) * width);
         const limitY = Math.max(0, ((view.scale - 1) / 2) * height);
         const offsetX = clamp((0.5 - view.x) * view.scale * width + panOffset.current.x, limitX);
         const offsetY = clamp((0.5 - view.y) * view.scale * height + panOffset.current.y, limitY);
         camNode.style.transform = `translate3d(${offsetX}px, ${offsetY}px, 0) scale(${view.scale})`;
-        // 이름표·말풍선은 사람과 함께 줄어들면 못 읽는다. 줄어든 만큼 되돌려 준다.
+        // Nameplates and speech bubbles become unreadable if they shrink with people. Counteract the shrinkage.
         camNode.style.setProperty("--label-counter", (1 / agentScale).toFixed(3));
-        // 클래스가 아니라 data 속성이어야 한다 — React 가 다시 그릴 때 className 을 통째로 덮어쓴다.
+        // This must be a data attribute, not a class — React overwrites the entire className when rerendering.
         attr(camNode, "data-compact", agentScale * view.scale < LABEL_LEGIBLE_SCALE ? "true" : "false");
       }
 
@@ -839,14 +839,14 @@ export function OfficeWorld({
         const pose = atDesk ? 1.12 : seated ? (crowded ? 0.58 : 0.72) : 1;
         const scale = pose * agentScale;
         /*
-         * transform-origin 이 center bottom 이라 배율은 발밑 좌표를 바꾸지 않는다.
-         * 그래서 상자 크기(SPRITE_W/H)는 원본 그대로 빼고, 타일 아래로 내려 세우는
-         * 여유분만 배율을 먹인다. 이 여유분이 예전 CSS 의 -80% / -67% 에 해당한다.
+         * With transform-origin at center bottom, scaling does not change the foot coordinates.
+         * Therefore subtract the box dimensions (SPRITE_W/H) at their original size and scale only the extra space
+         * that positions the sprite below the tile. This space corresponds to the old CSS values of -80% / -67%.
          */
         const overhang = (1 - (seated ? SEATED_FOOT_ANCHOR : FOOT_ANCHOR)) * SPRITE_H * scale;
         const transform =
           `translate3d(${col * tileW - SPRITE_W / 2}px, ${row * tileH - SPRITE_H + overhang}px, 0) scale(${scale})`;
-        // 같은 값을 다시 쓰면 브라우저가 스타일을 다시 계산한다. 제자리에 선 직원이 대부분이다.
+        // Rewriting the same value makes the browser recalculate styles. Most employees are stationary.
         if (el.dataset.transform !== transform) {
           el.dataset.transform = transform;
           el.style.transform = transform;
@@ -876,7 +876,7 @@ export function OfficeWorld({
       }
     };
 
-    // 움직임을 줄이기로 했으면 걷지 않는다 — 자리에 앉힌 채 그리기만 한다.
+    // With reduced motion enabled, do not walk — render employees seated in place.
     if (reducedMotion) motionsRef.current = stationaryMotions(workingWorkspaceId);
 
     let raf = 0;
@@ -899,8 +899,8 @@ export function OfficeWorld({
   function commitLayout(next: OfficeLayout) {
     if (saving) return;
     /*
-     * 가구·테마·이름이 그대로면 다시 검사할 것은 정원뿐이다. 전체 검증은 가구 O(n²) 겹침 검사와
-     * 좌석 45곳 BFS 라, 슬라이더를 5→35로 끌면 한 칸마다 40~50ms 씩 화면이 멈췄다.
+     * If furniture, theme, and name are unchanged, only headcount needs rechecking. Full validation performs an O(n²)
+     * furniture-overlap check and BFS across 45 seats, freezing the screen for 40–50ms at every step when dragging the slider from 5→35.
      */
     const headcountOnly = next.furniture === layout.furniture
       && next.theme === layout.theme
@@ -938,8 +938,8 @@ export function OfficeWorld({
   }
 
   /**
-   * 지금 직원이 밟고 있는 칸. 걷는 중에는 떠난 칸과 딛는 칸 사이에 있으므로 둘 다 센다.
-   * 편집기를 열어도 직원은 계속 걷기 때문에, 이걸 안 보면 사람 위에 가구가 놓인다.
+   * Tiles currently occupied by employees. While walking, they are between the tile they left and the tile they enter, so count both.
+   * Employees keep walking while the editor is open; ignoring this would allow furniture to be placed on people.
    */
   function standingTiles() {
     const keys = new Set<string>();
@@ -1012,7 +1012,7 @@ export function OfficeWorld({
   function handleCameraPointerMove(event: ReactPointerEvent<HTMLDivElement>) {
     const start = panStart.current;
     if (!start || start.pointerId !== event.pointerId) return;
-    // 화면에 반영되지 않을 값까지 쌓아 두면, 방향을 되돌렸을 때 헛도는 구간이 생긴다.
+    // Accumulating values that never reach the screen creates a dead segment when direction reverses.
     const { width, height } = stageSize.current;
     const baseX = (0.5 - camTarget.current.x) * cameraScale * width;
     const baseY = (0.5 - camTarget.current.y) * cameraScale * height;
@@ -1065,7 +1065,7 @@ export function OfficeWorld({
 
   async function saveLayout() {
     if (saving) return;
-    // 데모는 호스트 저장소가 없으므로 언제나 웹 미리보기 상태로 남는다.
+    // The demo has no host storage, so it always remains in web-preview state.
     setSaveState("layout.webPreview");
   }
 
@@ -1229,8 +1229,8 @@ export function OfficeWorld({
               const status = agent.primary ? workspaceStatus : undefined;
               const working = agent.primary && workingWorkspaceId === agent.workspaceId;
               const workplaceAgent = agent.primary || agent.teamIndex === 1;
-              // 순간순간의 걸음은 rAF 가 data-activity 로 쓴다. 읽어 주는 문구는 맡은 일로 적어야
-              // 스크린리더가 한 걸음마다 다시 읽지 않는다.
+              // rAF writes moment-to-moment walking to data-activity. Accessible copy must describe the assigned work
+              // so screen readers do not announce every step again.
               const activity = t(locale, `activity.${working ? "work" : workplaceAgent ? "wait" : "rest"}`);
               const selectedAgent = visibleSelectedAgentId === agent.id;
               const popoverId = `office-agent-${agent.id}`;
@@ -1244,10 +1244,10 @@ export function OfficeWorld({
                   }}
                   style={{
                     "--sprite-image": `url("/characters/char_${agent.sprite}.png")`,
-                    // 앉는 방향은 자리마다 고정이라 프레임마다 다시 계산할 필요가 없다.
+                    // Sitting direction is fixed per seat, so it need not be recalculated every frame.
                     "--seat-asset": `url("${seatAsset(homeDirection(agent))}")`,
-                    // 스프라이트가 6종뿐이라 35명이면 같은 얼굴이 여섯 번씩 나온다.
-                    // 살색이 뭉개지지 않을 만큼만 색을 틀어 6종 × 6단계로 갈라 놓는다.
+                    // With only six sprites, the same face appears six times at a headcount of 35.
+                    // Shift hues only enough to preserve skin tones, producing 6 types × 6 levels.
                     "--agent-hue": `${AGENT_HUES[agent.agentIndex % AGENT_HUES.length]}deg`,
                   } as WorldStyle}
                   data-edge-seat={!workplaceAgent && homePoint(agent).row <= TOP_BAND_SEAT_ROW ? "true" : undefined}
@@ -1328,8 +1328,8 @@ export function OfficeWorld({
           ) : null}
           </div>
           {/*
-           * 전체 화면 연출은 바깥 UI 를 걷어 낸다. 카메라 조작은 무대 위에 얹혀 있어야 그때도 손에 남는다.
-           * 편집기를 열 때만 감춘다 — 안 그러면 가구 놓는 클릭과 겹친다.
+            * Full-screen staging removes the surrounding UI. Camera controls must overlay the stage to remain available in that mode.
+            * Hide them only while the editor is open — otherwise they conflict with furniture-placement clicks.
            */}
           {editorOpen ? null : (
             <div className="office-camera-controls" role="group" aria-label={t(locale, "office.cameraGroup")}>
@@ -1368,7 +1368,7 @@ export function OfficeWorld({
             </div>
           )}
           {
-            // 같은 안내가 무대의 aria-label(office.stageClose)에 이미 들어 있어 보조기술에는 중복이다.
+            // The same guidance is already in the stage's aria-label (office.stageClose), so it is redundant for assistive technology.
             canPan ? <p className="office-drag-hint" aria-hidden="true">{t(locale, "office.dragHint")}</p> : null
           }
           {reducedMotion ? <p className="office-motion-note" role="status">{t(locale, "office.reducedMotion")}</p> : null}
@@ -1398,7 +1398,7 @@ export function OfficeWorld({
                 <h3 id="office-editor-title">{t(locale, "editor.title")}</h3>
               </div>
               {/*
-               * 놓는 중인 가구를 함께 끄지 않으면 무대가 "가구를 놓을 위치를 선택하세요"를 계속 읽어 준다.
+                * Unless active furniture placement is also disabled, the stage keeps announcing "Select a location for the furniture."
                */}
               <button
                 type="button"

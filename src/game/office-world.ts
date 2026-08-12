@@ -6,10 +6,10 @@ export const OFFICE_ROWS = 30;
 export const MAX_OFFICE_FURNITURE = 240;
 export const OFFICE_HEADCOUNT_MIN = 5;
 export const OFFICE_HEADCOUNT_MAX = 35;
-/* 요구 범위가 20~35명이다. 설치 직후 화면이 그 아래에서 시작하면 안 된다. */
+/* The required range is 20–35 employees. The initial screen must not start below it. */
 export const DEFAULT_OFFICE_HEADCOUNT = 20;
 export const OFFICE_NAME_MAX = 32;
-/** 제품명은 company.config.ts가 계속 소유하고, 사용자가 고른 회사 이름이 없을 때만 대신 쓴다. */
+/** company.config.ts continues to own the product name; use it only when the user has not chosen a company name. */
 export const DEFAULT_OFFICE_NAME = COMPANY.name;
 
 export function strollTargetForHeadcount(headcount: number, random = Math.random): number {
@@ -44,22 +44,22 @@ export type FurnitureCatalogEntry = {
   blocksMovement: boolean;
 };
 
-/** 복도 네 줄 중 나가는 다리와 돌아오는 다리가 각각 두 줄씩 쓴다. */
+/** Of the four corridor rows, the outbound and return legs each use two. */
 export const CORRIDOR_ROWS = [13, 14, 15, 16] as const;
 /**
- * 이름표가 서로를 덮지 않는 최소 열 간격. 2였을 때는 정원 35에서 복도 가운데에
- * 이름표가 층층이 쌓여, 넓은 사무실이 아니라 사람이 뭉친 사무실로 보였다.
+ * Minimum column spacing that keeps nameplates from covering each other. At 2 and a headcount of 35,
+ * nameplates stacked up in the corridor center, making the spacious office look crowded.
  */
 const STROLL_COL_STEP = 4;
 
 /**
- * 지원 인력의 산책 목표. 두 줄로 갈라 세우고 열 간격을 넓혀, 정원 35에서도
- * 복도에 겹치지 않고 늘어선다.
+ * Stroll targets for support staff. Split them across two rows with wider column spacing so they
+ * line up in the corridor without overlap even at a headcount of 35.
  *
- * 정원 상한을 올릴 때 먼저 걸리는 것은 이 함수가 아니라 `AMENITY_SEATS` 다 —
- * 좌석은 정원 36에서 동나고(`assignedAmenitySeat` 가 undefined 를 돌려준다),
- * 여기 열 계산은 **정원 41까지** 격자 안에 남는다(실측: 정원 42의 `agentIndex 41` 은
- * 나가는 다리 col 74, 돌아오는 다리 col -3 으로 둘 다 격자 밖이라 경로가 비고 그 사람이 선다).
+ * When raising the headcount cap, `AMENITY_SEATS`, not this function, is the first limit —
+ * seats run out at 36 (`assignedAmenitySeat` returns undefined), while this column calculation
+ * remains inside the grid **through a headcount of 41** (measured: at 42, `agentIndex 41` reaches
+ * col 74 outbound and col -3 returning; both are outside the grid, so the path is empty and that employee stops).
  */
 export function strollPointForAgent(agentIndex: number, leg: "out" | "back"): OfficePoint {
   const supportIndex = agentIndex - WORKSPACES.length;
@@ -367,7 +367,7 @@ export const AMENITY_ENTRY_POINTS: readonly OfficePoint[] = AMENITY_ZONES.reduce
   [],
 );
 
-/** 존을 한 자리씩 번갈아 채운다. 가구 때문에 자리 수가 다른 존이 있어도 남은 존으로 이어 배정한다. */
+/** Fill zones one seat at a time in rotation. If furniture gives zones different capacities, continue assigning among those with space. */
 function amenityRotation(lists: readonly (readonly OfficePoint[])[]): readonly OfficePoint[] {
   const longest = Math.max(...lists.map(({ length }) => length));
   const order: OfficePoint[] = [];
@@ -403,14 +403,14 @@ export const OFFICE_DOORS = [
 ] as const satisfies readonly OfficePoint[];
 
 /*
- * 출근·퇴근 지점. 첫째는 로비 정문(아래쪽 벽에 이미 뚫려 있는 칸)이고,
- * 둘째는 복도 동쪽 끝 엘리베이터다. 두 곳이 화면에서 확실히 떨어져 있어야
- * "문이랑 엘리베이터에서 쏟아져 나온다"가 보인다. 복도 13~16행은 통째로
- * 보호 타일이라 가구가 엘리베이터 앞을 막을 수 없다.
+ * Arrival and departure points. The first is the lobby's main entrance, an existing opening in the bottom wall;
+ * the second is the elevator at the corridor's east end. They must be visibly separated on screen to show
+ * employees "pouring out of the door and elevator." Corridor rows 13–16 are entirely protected tiles,
+ * so furniture cannot block the elevator entrance.
  */
 export const SPAWN_DOORS = [{ col: 23, row: 29 }, { col: 70, row: 14 }] as const satisfies readonly OfficePoint[];
 
-/** 엘리베이터 문을 그릴 자리 — SPAWN_DOORS[1] 바로 옆 동쪽 벽이다. 같이 옮겨야 한다. */
+/** Where the elevator door is drawn — the east wall immediately beside SPAWN_DOORS[1]. Move them together. */
 export const ELEVATOR_SHAFT = { col: 71, row: 13, cols: 1, rows: 4 } as const;
 
 export function spawnPointFor(agentIndex: number): { point: OfficePoint; via: "door" | "elevator" } {
@@ -691,7 +691,7 @@ export function canPlaceFurniture(
   layout: OfficeLayout,
   value: OfficeFurniture,
   ignoreUid?: string,
-  /** 지금 직원이 밟고 있는 칸. 그 위에 놓으면 사람과 가구가 겹쳐 보인다. */
+  /** Tiles currently occupied by employees. Placing furniture there makes people and furniture overlap. */
   standing: ReadonlySet<string> = NO_TILES,
 ): boolean {
   return canPlaceFurnitureAgainst(layout, value, PROTECTED_KEYS, ignoreUid, standing);
@@ -710,7 +710,7 @@ function canPlaceFurnitureAgainst(
   for (const tile of furnitureTiles(value)) {
     const key = pointKey(tile);
     if (!inBounds(tile) || WALL_KEYS.has(key) || protectedKeys.has(key)) return false;
-    // 러그처럼 길을 막지 않는 물건은 사람 발밑에 깔려도 된다.
+    // Objects that do not block paths, such as rugs, may sit under employees' feet.
     if (blocksMovement && (occupied.has(key) || standing.has(key))) return false;
   }
   return true;
@@ -754,7 +754,7 @@ function firstAvailableFurniturePosition(
 export function firstAvailableFurnitureCenter(
   layout: OfficeLayout,
   type: OfficeFurnitureType,
-  /** 직원이 밟은 칸. 여기서 함께 걸러야 키보드 배치가 고른 자리를 곧바로 거부하지 않는다. */
+  /** Tiles occupied by employees. Filter them here too so keyboard placement does not immediately reject its chosen position. */
   standing: ReadonlySet<string> = NO_TILES,
 ): OfficePoint | null {
   const size = furnitureFootprint(type);
@@ -857,8 +857,8 @@ export function checkedOfficeLayout(input: unknown): OfficeLayout {
 }
 
 /**
- * 정원만 검사한다. 가구가 그대로인 변경(정원 슬라이더)에서 전체 검증을 다시 돌리면
- * 한 칸마다 O(n²) 겹침 검사와 좌석 45곳 BFS 가 다시 돌아 40~50ms 씩 화면이 멈춘다.
+ * Validate only headcount. Running full validation for a change that leaves furniture intact (the headcount slider)
+ * repeats the O(n²) overlap check and BFS across 45 seats at each step, freezing the screen for 40–50ms.
  */
 export function checkedOfficeHeadcount(input: unknown): number {
   if (
@@ -869,7 +869,7 @@ export function checkedOfficeHeadcount(input: unknown): number {
   return input as number;
 }
 
-/** 회사 이름은 헤더와 로비 간판에 한 줄로 들어가므로 줄바꿈과 제어 문자를 막는다. */
+/** The company name occupies one line in the header and lobby sign, so reject line breaks and control characters. */
 export function checkedOfficeName(input: unknown): string {
   if (typeof input !== "string") throw new Error("Invalid office name");
   const text = input.trim();

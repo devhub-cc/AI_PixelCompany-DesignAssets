@@ -1,21 +1,21 @@
 /**
- * 화면 문구 사전. 지원 언어는 한국어, 영어, 중국어(간체), 베트남어, 인도네시아어 다섯 개다.
+ * UI copy dictionary. It supports five languages: Korean, English, Simplified Chinese, Vietnamese, and Indonesian.
  *
- * 외부 i18n 라이브러리를 쓰지 않는다. 필요한 것은 사전 하나와 치환 하나뿐이고,
- * 한국어 밖의 사전을 `Record<keyof typeof ko, string>`으로 묶어 두면 빠진 키를 TypeScript가 잡는다.
+ * No external i18n library is used. All that is needed is one dictionary and one substitution,
+ * and typing non-Korean dictionaries as `Record<keyof typeof ko, string>` lets TypeScript catch missing keys.
  *
- * 여기에 두는 것은 화면 골격 문구다. 5개 공간·직함은 `company.config.ts`,
- * 테마·가구·편의 공간 이름은 `app/game/office-world.ts`가 `LocalizedText`로 직접 들고 있다.
+ * This file contains the UI shell copy. The five spaces and job titles live in `company.config.ts`,
+ * while `app/game/office-world.ts` directly stores theme, furniture, and amenity-space names as `LocalizedText`.
  */
 
 export const LOCALES = ["ko", "en", "zh", "vi", "id"] as const;
 export type Locale = (typeof LOCALES)[number];
 export const DEFAULT_LOCALE: Locale = "ko";
 
-/** 데이터 옆에 붙어 있는 표시 이름. 한 언어라도 빠지면 컴파일되지 않는다. */
+/** Display names attached to data. Compilation fails if any language is missing. */
 export type LocalizedText = Readonly<Record<Locale, string>>;
 
-/** 언어 선택기에 쓰는 이름은 각 언어 표기 그대로 둔다. */
+/** Keep language-picker labels in each language's native form. */
 export const LOCALE_LABELS: Record<Locale, string> = {
   ko: "한국어",
   en: "English",
@@ -24,7 +24,7 @@ export const LOCALE_LABELS: Record<Locale, string> = {
   id: "Bahasa Indonesia",
 };
 
-/** 저장 파일·IPC·화면 어디서 와도 여기를 지나야 한다. 모르는 값은 조용히 한국어로 돌아간다. */
+/** Values from save files, IPC, or the UI must all pass through here. Unknown values quietly fall back to Korean. */
 export function checkedLocale(value: unknown): Locale {
   return LOCALES.includes(value as Locale) ? (value as Locale) : DEFAULT_LOCALE;
 }
@@ -407,7 +407,7 @@ const id: Record<MessageKey, string> = {
 
 export const MESSAGES: Record<Locale, Record<MessageKey, string>> = { ko, en, zh, vi, id };
 
-/** `{name}` 자리만 바꾼다. 값이 없는 자리는 그대로 두어 빠진 것이 화면에 드러나게 한다. */
+/** Replace only `{name}`-style placeholders. Leave placeholders without values intact so missing values remain visible in the UI. */
 export function t(
   locale: Locale,
   key: MessageKey,
@@ -420,5 +420,5 @@ export function t(
   ));
 }
 
-/** 테스트가 사전들을 같은 키로 비교할 수 있게 열어 둔다. */
+/** Export dictionaries so tests can compare them using the same keys. */
 export const MESSAGE_KEYS = Object.keys(ko) as MessageKey[];

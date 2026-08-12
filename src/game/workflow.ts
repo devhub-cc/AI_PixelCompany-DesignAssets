@@ -1,6 +1,6 @@
 /**
- * 타입 스텁 — 제품의 워크플로 엔진에서 화면 표시에 필요한 타입만 옮겨 왔습니다.
- * 실제 실행 로직·이벤트 소싱 엔진은 이 저장소에 포함되지 않습니다.
+ * Type stub — only the types needed for display were copied from the product workflow engine.
+ * The actual execution logic and event-sourcing engine are not included in this repository.
  */
 export const WORKFLOW_STATUSES = [
   "idle",

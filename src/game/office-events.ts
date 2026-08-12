@@ -1,6 +1,6 @@
 /**
- * 타입 스텁 — 사무실 화면이 읽는 표현 이벤트의 형태만 정의합니다.
- * 이벤트를 실제로 만들어 내는 워크플로 연동은 이 저장소에 포함되지 않습니다.
+ * Type stub — defines only the shape of presentation events consumed by the office screen.
+ * The workflow integration that actually produces these events is not included in this repository.
  */
 import type { LocalizedText } from "../i18n.ts";
 import type { WorkflowStatus } from "./workflow.ts";
