@@ -6,10 +6,12 @@ A **design asset pack and motion demo** of a top-down pixel office — the offic
 content app "Pixel Company (Draftroom)". A 72×30 tile world, character movement, seating and
 stroll rules, and a furniture editor, all running in the browser.
 
-![Pixel office demo — full floor with walking characters](screenshots/office-en.png)
+![One Connected Content Office](screenshots/poster.png)
 
 <details>
-<summary>More screenshots — task running state · furniture editor</summary>
+<summary>Live demo screenshots — full floor · task running state · furniture editor</summary>
+
+![Pixel office demo — full floor with walking characters](screenshots/office-en.png)
 
 ![A room in the running state, its lead working at the desk](screenshots/running-ko.png)
 
