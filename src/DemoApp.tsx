@@ -60,7 +60,7 @@ const UI = {
 } satisfies Record<string, LocalizedText>;
 
 export function DemoApp() {
-  const [locale, setLocale] = useState<Locale>("ko");
+  const [locale, setLocale] = useState<Locale>("en");
   const [activeId, setActiveId] = useState<string | null>(null);
 
   const workspaceStatuses = useMemo(() => {

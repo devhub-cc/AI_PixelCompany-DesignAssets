@@ -1,18 +1,13 @@
-/* 데모가 실제로 쓰는 스타일만 남긴 축약본입니다. 원본 제품 스타일시트에서 기계적으로 추출했습니다. */
+/* Trimmed stylesheet: only the rules the demo actually uses, mechanically extracted from the product stylesheet. */
 
 * {
   box-sizing: border-box;
 }
 
-
-
-/* 색 토큰은 .app-shell에 주입되므로 캔버스는 color-scheme으로만 밝게 맞춥니다. */
 html {
   min-width: 320px;
   color-scheme: light;
 }
-
-
 
 body {
   min-width: 320px;
@@ -21,15 +16,11 @@ body {
   font-family: Inter, Pretendard, "Noto Sans KR", "Segoe UI", sans-serif;
 }
 
-
-
 button,
 input,
 summary {
   font: inherit;
 }
-
-
 
 button,
 input,
@@ -37,8 +28,6 @@ a,
 summary {
   -webkit-tap-highlight-color: transparent;
 }
-
-
 
 button:focus-visible,
 input:focus-visible,
@@ -48,8 +37,6 @@ summary:focus-visible {
   outline-offset: 3px;
 }
 
-
-
 h1,
 h2,
 h3,
@@ -57,8 +44,6 @@ p {
   margin-top: 0;
   word-break: keep-all;
 }
-
-
 
 .app-shell {
   position: relative;
@@ -71,8 +56,6 @@ p {
   color: var(--color-ink);
 }
 
-
-
 .app-shell::before {
   position: fixed;
   z-index: 0;
@@ -84,15 +67,11 @@ p {
   transition: opacity 0.45s ease;
 }
 
-
-
 .app-shell[data-workflow-status="running"]::before {
   --ambient-color: color-mix(in srgb, var(--color-amber) 32%, transparent);
   opacity: 1;
   animation: ambient-drift 7s ease-in-out infinite alternate;
 }
-
-
 
 .app-shell[data-workflow-status="awaiting_approval"]::before {
   --ambient-color: color-mix(in srgb, var(--color-red) 32%, transparent);
@@ -100,15 +79,11 @@ p {
   animation: ambient-drift 3.4s ease-in-out infinite alternate;
 }
 
-
-
 .app-shell[data-workflow-status="completed"]::before {
   --ambient-color: color-mix(in srgb, var(--color-green) 28%, transparent);
   opacity: 1;
   animation: ambient-drift 8s ease-in-out infinite alternate;
 }
-
-
 
 .workspace-layout {
   display: grid;
@@ -116,16 +91,12 @@ p {
   min-height: 540px;
 }
 
-
-
 .office-panel {
   min-width: 0;
   padding: 20px;
   border-bottom: 1px solid var(--color-line);
   background: color-mix(in srgb, var(--color-cream) 45%, var(--color-frame));
 }
-
-
 
 .status-badge {
   display: inline-flex;
@@ -139,8 +110,6 @@ p {
   font-size: 11px;
   font-weight: 800;
 }
-
-
 
 .button {
   position: relative;
@@ -157,22 +126,16 @@ p {
   transition: transform 0.14s ease, box-shadow 0.14s ease, border-color 0.14s ease;
 }
 
-
-
 .button:hover:not(:disabled) {
   border-color: var(--color-ink);
   box-shadow: 0 8px 18px color-mix(in srgb, var(--color-shadow) 12%, transparent);
   transform: translateY(-2px);
 }
 
-
-
 .button:active:not(:disabled) {
   box-shadow: none;
   transform: translateY(1px);
 }
-
-
 
 .button[aria-busy="true"]::after {
   position: absolute;
@@ -183,28 +146,12 @@ p {
   animation: button-sheen 1.15s ease-in-out infinite;
 }
 
-
-
 .button:disabled {
   cursor: not-allowed;
   filter: grayscale(0.25);
   opacity: 0.48;
 }
 
-
-
-/* 예시 문장은 한 줄만 흘리고 {
-  overflow: hidden;
-  min-width: 0;
-  color: var(--color-muted);
-  font-size: 10px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-
-
-/* 하나의 큰 좌표계를 공유하는 실제 오피스 월드입니다. */
 .office-world {
   --office-floor: var(--color-floor);
   --office-wall: var(--color-wood);
@@ -227,17 +174,11 @@ p {
     0 18px 36px color-mix(in srgb, var(--color-shadow) 22%, transparent);
 }
 
-
-
 .office-world-heading {
   position: relative;
   z-index: 30;
   display: flex;
-  /*
-   * 줄어들면 안 된다. 무대가 하한(234px)을 잡고 있으므로 남는 몫이 모자라면 flex 가 여기를 깎는데,
-   * z-index 30 이라 넘친 버튼이 사무실 바닥 위에 겹쳐 그려진다. 베트남어·인도네시아어처럼
-   * 머리말이 두 줄이 되는 언어의 900x680 에서 실제로 20~35px 이 무대를 덮었다.
-   */
+  
   flex: 0 0 auto;
   gap: 16px;
   align-items: center;
@@ -250,13 +191,9 @@ p {
   color: var(--color-ink);
 }
 
-
-
 .office-world-heading > div:first-child {
   min-width: 0;
 }
-
-
 
 .office-world-heading p {
   margin: 0 0 3px;
@@ -265,15 +202,11 @@ p {
   letter-spacing: 0.14em;
 }
 
-
-
 .office-world-heading h3 {
   margin: 0;
   font-size: 18px;
   letter-spacing: -0.025em;
 }
-
-
 
 .office-world-heading > div:first-child > span {
   display: block;
@@ -281,8 +214,6 @@ p {
   color: color-mix(in srgb, var(--color-ink) 76%, var(--color-cream));
   font-size: 10px;
 }
-
-
 
 .office-world-actions,
 .office-editor-controls,
@@ -293,8 +224,6 @@ p {
   gap: 7px;
   align-items: center;
 }
-
-
 
 .office-world-heading-tools {
   display: flex;
@@ -307,8 +236,6 @@ p {
   max-width: 100%;
   min-width: max-content;
 }
-
-
 
 .office-clock-card {
   display: grid;
@@ -328,13 +255,9 @@ p {
   text-align: center;
 }
 
-
-
 .office-world-heading .office-world-actions {
   flex-wrap: nowrap;
 }
-
-
 
 .office-clock-card span {
   min-width: 0;
@@ -346,8 +269,6 @@ p {
   overflow-wrap: anywhere;
 }
 
-
-
 .office-clock-card time {
   color: var(--color-cream);
   font-size: clamp(28px, 2.4vw, 32px);
@@ -356,8 +277,6 @@ p {
   letter-spacing: 0.04em;
   line-height: 1;
 }
-
-
 
 .office-world-actions button,
 .office-editor button {
@@ -372,23 +291,17 @@ p {
   cursor: pointer;
 }
 
-
-
 .office-world-actions button:hover:not(:disabled),
 .office-editor button:hover:not(:disabled) {
   border-color: var(--color-focus);
   transform: translateY(-1px);
 }
 
-
-
 .office-world-actions button:disabled,
 .office-editor button:disabled {
   cursor: not-allowed;
   opacity: 0.44;
 }
-
-
 
 .office-world-stage {
   position: relative;
@@ -410,13 +323,9 @@ p {
   box-shadow: inset 0 0 70px color-mix(in srgb, var(--office-glow) 13%, transparent);
 }
 
-
-
 .office-world-body {
   position: relative;
 }
-
-
 
 .office-world-stage::before {
   position: absolute;
@@ -437,8 +346,6 @@ p {
   opacity: 0.68;
 }
 
-
-
 .office-world-stage::after {
   position: absolute;
   z-index: 12;
@@ -450,17 +357,12 @@ p {
   translate: -100% 0;
 }
 
-
-
 .office-world.workflow-running .office-world-stage::after,
 .office-world.workflow-awaiting_approval .office-world-stage::after {
   opacity: 1;
   animation: world-light-sweep 5.6s ease-in-out infinite;
 }
 
-
-
-/* 복도 동쪽 끝 엘리베이터. 로비 그림(.lobby-elevators i)과 같은 문양이라 같은 장치로 읽힌다. */
 .office-elevator {
   position: absolute;
   z-index: 1;
@@ -474,8 +376,6 @@ p {
     color-mix(in srgb, var(--office-wall-dark) 24%, var(--office-surface));
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-cream) 45%, transparent);
 }
-
-
 
 .office-zone {
   position: absolute;
@@ -497,8 +397,6 @@ p {
   transition: filter 0.28s ease, box-shadow 0.28s ease, transform 0.28s ease;
 }
 
-
-
 .office-zone::before {
   position: absolute;
   z-index: -1;
@@ -509,28 +407,22 @@ p {
     var(--office-carpet-asset),
     color-mix(in srgb, var(--zone-accent) 32%, var(--office-floor));
   background-size: 32px 32px;
-  /* 카펫 PNG는 회색 마스크라 곱해서 깔아야 아래 색이 남는다. */
+  
   background-blend-mode: multiply;
   content: "";
   image-rendering: pixelated;
   opacity: 0.5;
 }
 
-
-
 .zone-briefing::before {
   inset: 13% 7% 10%;
   border-radius: 10px;
 }
 
-
-
 .zone-research::before {
   inset: 8% 15% 12%;
   border-radius: 7px 46% 7px 46%;
 }
-
-
 
 .zone-ideas::before {
   inset: 13% 8% 10%;
@@ -538,22 +430,16 @@ p {
   rotate: -2deg;
 }
 
-
-
 .zone-studio::before {
   inset: 18% 5% 8%;
   border-radius: 8px 46% 8px 46%;
 }
-
-
 
 .zone-archive::before {
   inset: 8% 13%;
   border-radius: 4px;
   background-size: 16px 32px;
 }
-
-
 
 .office-zone[aria-current="step"] {
   box-shadow:
@@ -563,8 +449,6 @@ p {
     0 0 40px color-mix(in srgb, var(--zone-accent) 42%, transparent);
   transform: translateY(-3px);
 }
-
-
 
 .office-zone-heading {
   position: absolute;
@@ -586,14 +470,10 @@ p {
   white-space: nowrap;
 }
 
-
-
 .office-zone-heading > div {
   display: grid;
   min-width: 0;
 }
-
-
 
 .office-zone-heading small {
   display: block;
@@ -603,8 +483,6 @@ p {
   letter-spacing: 0.08em;
   text-overflow: ellipsis;
 }
-
-
 
 .office-zone-door {
   position: absolute;
@@ -620,8 +498,6 @@ p {
   translate: -50% -50%;
 }
 
-
-
 .office-zone-door.door-left,
 .office-zone-door.door-right {
   width: 14px;
@@ -633,8 +509,6 @@ p {
   box-shadow: inset -3px 0 color-mix(in srgb, var(--office-trim) 45%, transparent);
 }
 
-
-
 .office-furniture-layer,
 .office-agent-layer {
   position: absolute;
@@ -645,14 +519,10 @@ p {
   pointer-events: none;
 }
 
-
-
 .office-agent-layer {
   z-index: 8;
   list-style: none;
 }
-
-
 
 .office-furniture {
   position: absolute;
@@ -669,8 +539,6 @@ p {
   pointer-events: none;
 }
 
-
-
 .office-furniture-sprite {
   display: block;
   width: 100%;
@@ -685,22 +553,16 @@ p {
   transform-origin: center bottom;
 }
 
-
-
 .office-furniture-selected {
   outline: 3px dashed var(--color-focus);
   outline-offset: 3px;
   background: color-mix(in srgb, var(--color-focus) 14%, transparent);
 }
 
-
-
 .furniture-PC .office-furniture-sprite {
   background-image: url("/office-assets/furniture/PC/PC_FRONT_OFF.png");
   animation: none;
 }
-
-
 
 .office-world.workflow-running .furniture-PC .office-furniture-sprite,
 .office-world.workflow-awaiting_approval .furniture-PC .office-furniture-sprite {
@@ -708,14 +570,6 @@ p {
   background-image: url("/office-assets/furniture/PC/PC_FRONT_ON_1.png");
 }
 
-
-
-/*
- * 위치·크기·겹침 순서는 전부 rAF 루프가 transform 으로 직접 쓴다.
- * 예전에는 left/top 을 CSS 트랜지션으로 따라가게 했는데,
-트랜지션 길이가 걸음 주기와
- * 어긋나 매번 중간에 잘렸고 레이아웃 속성이라 35명이면 프레임마다 리플로우가 났다.
- */
 .world-agent {
   position: absolute;
   top: 0;
@@ -728,19 +582,10 @@ p {
   will-change: transform;
 }
 
-
-
-/*
- * data-offstage 는 rAF 만 쓴다. 속성이 아직 없다는 건 첫 프레임 전이라는 뜻이고,
-* 그때 보여 주면 전원이 좌상단에 겹쳐 한 번 번쩍인다. React 가 이 속성을 쓰면
- * 다시 그릴 때마다 rAF 와 서로 덮어써서 깜빡이므로 JSX 에서는 건드리지 않는다.
- */
 .world-agent:not([data-offstage]),
 .world-agent[data-offstage="true"] {
   visibility: hidden;
 }
-
-
 
 .world-agent::after {
   position: absolute;
@@ -754,8 +599,6 @@ p {
   content: "";
 }
 
-
-
 .world-agent-sprite {
   position: relative;
   z-index: 2;
@@ -766,95 +609,62 @@ p {
   background-repeat: no-repeat;
   background-size: 336px 288px;
   image-rendering: pixelated;
-  /* 스프라이트 6종을 서로 다른 사람으로 보이게 하는 미세 색상 편차. 값은 OfficeWorld 가 준다. */
+  
   filter: hue-rotate(var(--agent-hue, 0deg));
   transform-origin: center bottom;
 }
 
-
-
 .world-agent.sprite-0 .world-agent-sprite { background-image: url("/characters/char_0.png"); }
-
-
 
 .world-agent.sprite-1 .world-agent-sprite { background-image: url("/characters/char_1.png"); }
 
-
-
 .world-agent.sprite-2 .world-agent-sprite { background-image: url("/characters/char_2.png"); }
-
-
 
 .world-agent.sprite-3 .world-agent-sprite { background-image: url("/characters/char_3.png"); }
 
-
-
 .world-agent.sprite-4 .world-agent-sprite { background-image: url("/characters/char_4.png"); }
 
-
-
 .world-agent.sprite-5 .world-agent-sprite { background-image: url("/characters/char_5.png"); }
-
-
 
 .world-agent[data-direction="up"] .world-agent-sprite {
   background-position-y: -96px;
 }
-
-
 
 .world-agent[data-direction="left"] .world-agent-sprite,
 .world-agent[data-direction="right"] .world-agent-sprite {
   background-position-y: -192px;
 }
 
-
-
 .world-agent[data-direction="left"] .world-agent-sprite {
   scale: -1 1;
 }
-
-
 
 .world-agent[data-moving="true"] .world-agent-sprite {
   animation: world-agent-walk 0.42s steps(1, end) infinite;
 }
 
-
-
-/* 앉은 자세의 축소(0.72 / 붐빌 때 0.58)와 발밑 앵커는 rAF 가 transform 으로 준다. */
 .world-agent[data-resting="true"] .world-agent-identity {
   scale: calc(var(--label-counter, 1) * 1.2);
   transform-origin: center bottom;
 }
 
-
-
 .office-world.office-crowded .world-agent[data-resting="true"] .world-agent-identity {
   scale: calc(var(--label-counter, 1) * 1.48);
 }
 
-
-
 .world-agent[data-edge-seat="true"] .world-agent-identity {
   translate: -50% 10px;
 }
-
-
 
 .zone-library .office-zone-heading,
 .zone-cafe .office-zone-heading {
   top: calc(100% + 32px);
 }
 
-
-
 .zone-lounge .office-zone-heading,
 .zone-dining .office-zone-heading {
   top: -28px;
 }
-
-
 
 .world-agent[data-resting="true"]::before {
   position: absolute;
@@ -868,27 +678,19 @@ p {
   image-rendering: pixelated;
 }
 
-
-
 .world-agent[data-resting="true"][data-direction="left"]::before {
   scale: -1 1;
 }
-
-
 
 .world-agent[data-resting="true"] .world-agent-sprite {
   animation: none;
   clip-path: inset(0 0 18px 0);
 }
 
-
-
 .world-agent[data-resting="true"]::after {
   bottom: 14px;
   opacity: 0.48;
 }
-
-
 
 .world-agent[data-task-focus="true"] {
   filter:
@@ -896,13 +698,9 @@ p {
     drop-shadow(0 0 12px color-mix(in srgb, var(--office-glow) 72%, transparent));
 }
 
-
-
 .world-agent[data-working="true"] {
   filter: drop-shadow(0 0 8px color-mix(in srgb, var(--office-glow) 82%, transparent));
 }
-
-
 
 .world-agent[data-working="true"] .world-agent-sprite {
   animation:
@@ -910,23 +708,15 @@ p {
     world-agent-work 0.9s steps(4, end) infinite;
 }
 
-
-
 .world-agent[data-task-focus="true"]:not([data-working="true"]) .world-agent-sprite {
   animation: world-agent-focus 0.72s cubic-bezier(0.2, 0.9, 0.3, 1) both;
 }
 
-
-
-/* 걷던 직원도 같은 순간 반응하되,
-반응 뒤에는 보행 프레임을 계속 재생한다. */
 .world-agent[data-task-focus="true"][data-moving="true"]:not([data-working="true"]) .world-agent-sprite {
   animation:
     world-agent-walk 0.42s steps(1, end) infinite,
     world-agent-focus 0.72s cubic-bezier(0.2, 0.9, 0.3, 1) both;
 }
-
-
 
 .world-agent-identity {
   position: absolute;
@@ -945,8 +735,6 @@ p {
   translate: -50% 0;
 }
 
-
-
 .world-agent-identity small {
   overflow: hidden;
   color: var(--color-muted);
@@ -956,9 +744,6 @@ p {
   white-space: nowrap;
 }
 
-
-
-/* 이름 상자는 두 글자 기준으로 좁다. 언어마다 길이가 다르므로 넘치면 자르고 줄은 늘리지 않는다. */
 .world-agent-identity strong {
   overflow: hidden;
   margin-top: 1px;
@@ -967,8 +752,6 @@ p {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
-
 
 .world-agent-status {
   position: absolute;
@@ -989,15 +772,10 @@ p {
   animation: bubble-pop 0.2s ease-out both;
 }
 
-
-
 .office-world.workflow-awaiting_approval .world-agent-status {
   background: color-mix(in srgb, var(--color-red) 58%, var(--color-amber));
 }
 
-
-
-/* 말풍선 — 내용과 표시 여부는 rAF 가 data 속성으로 갈아끼운다. */
 .world-agent-bubble {
   position: absolute;
   z-index: 6;
@@ -1023,14 +801,10 @@ p {
   translate: -50% 0;
 }
 
-
-
 .world-agent-bubble[data-on="true"] {
   opacity: 1;
   scale: var(--label-counter, 1);
 }
-
-
 
 .world-agent-bubble::after {
   position: absolute;
@@ -1047,47 +821,28 @@ p {
   translate: -50% 0;
 }
 
-
-
 .world-agent-bubble[data-tone="think"] {
   border-style: dashed;
   background: color-mix(in srgb, var(--office-rug) 60%, var(--color-cream));
   font-style: italic;
 }
 
-
-
-/*
- * 공간 상태를 방 자체에 표시한다. 예전에는 JSX 가 zone-active 클래스를 붙였지만
- * CSS 에 정의가 없어 죽은 클래스였고,
-실제 강조는 aria-current 하나에만 걸려 있었다.
- */
 .office-zone[data-zone-status="running"] {
   animation: zone-live 1.7s ease-in-out infinite;
 }
-
-
 
 .office-zone[data-zone-status="awaiting_approval"] {
   border-color: var(--color-amber);
   border-bottom-color: color-mix(in srgb, var(--color-amber) 70%, var(--office-wall-dark));
 }
 
-
-
 .office-zone[data-zone-status="completed"] {
   border-bottom-color: color-mix(in srgb, var(--color-green) 62%, var(--office-wall-dark));
 }
 
-
-
 .office-zone[data-zone-status="failed"] {
   border-color: color-mix(in srgb, var(--color-red) 62%, var(--office-wall));
 }
-
-
-
-
 
 @keyframes zone-live {
   0%,
@@ -1105,8 +860,6 @@ p {
       0 0 0 9px color-mix(in srgb, var(--zone-accent) 0%, transparent);
   }
 }
-
-
 
 .office-editor {
   position: relative;
@@ -1126,8 +879,6 @@ p {
   color: var(--color-ink);
 }
 
-
-
 .office-motion-note {
   position: absolute;
   z-index: 20;
@@ -1142,8 +893,6 @@ p {
   font-size: 9px;
 }
 
-
-
 .office-editor-heading {
   display: flex;
   gap: 10px;
@@ -1151,14 +900,10 @@ p {
   justify-content: space-between;
 }
 
-
-
 .office-editor-heading h3,
 .office-editor-section h4 {
   margin: 0;
 }
-
-
 
 .office-editor-heading p,
 .office-editor-section p,
@@ -1169,16 +914,12 @@ p {
   line-height: 1.45;
 }
 
-
-
 .office-editor-section {
   display: grid;
   gap: 8px;
   padding-top: 11px;
   border-top: 1px solid var(--color-line);
 }
-
-
 
 .office-headcount label {
   display: flex;
@@ -1187,8 +928,6 @@ p {
   font-size: 11px;
   font-weight: 850;
 }
-
-
 
 .office-headcount output {
   min-width: 46px;
@@ -1200,8 +939,6 @@ p {
   text-align: center;
 }
 
-
-
 .office-headcount input[type="range"] {
   width: 100%;
   min-height: 34px;
@@ -1210,16 +947,12 @@ p {
   cursor: pointer;
 }
 
-
-
 .office-theme-options button[aria-pressed="true"],
 .office-hue-options button[aria-pressed="true"],
 .office-furniture-catalog button[aria-pressed="true"] {
   border-color: var(--color-focus);
   box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--color-focus) 25%, transparent);
 }
-
-
 
 .office-theme-options button::before {
   display: inline-block;
@@ -1233,8 +966,6 @@ p {
   vertical-align: -1px;
 }
 
-
-
 .office-furniture-catalog {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1243,8 +974,6 @@ p {
   overflow: auto;
   padding: 2px;
 }
-
-
 
 .office-furniture-catalog button {
   display: grid;
@@ -1255,8 +984,6 @@ p {
   line-height: 1.2;
   text-align: center;
 }
-
-
 
 .office-furniture-catalog img,
 .office-furniture-catalog i {
@@ -1270,8 +997,6 @@ p {
   image-rendering: pixelated;
 }
 
-
-
 .office-hue-options button {
   width: 30px;
   min-height: 30px;
@@ -1282,13 +1007,9 @@ p {
   font-size: 0;
 }
 
-
-
 .office-save-status[role="alert"] {
   color: var(--color-red);
 }
-
-
 
 .office-editor-footer,
 .office-editor-footer > div {
@@ -1299,22 +1020,14 @@ p {
   justify-content: space-between;
 }
 
-
-
 .office-save-layout {
   border-color: var(--color-focus) !important;
   background: var(--color-green) !important;
 }
 
-
-
 .office-delete-furniture {
   color: var(--color-red) !important;
 }
-
-
-
-
 
 @keyframes world-agent-walk {
   0%, 24% { background-position-x: 0; }
@@ -1322,27 +1035,15 @@ p {
   50%, 74% { background-position-x: -96px; }
 }
 
-
-
-
-
 @keyframes world-agent-type {
   0%, 49% { background-position-x: -144px; }
   50%, 100% { background-position-x: -192px; }
 }
 
-
-
-
-
 @keyframes world-agent-work {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-3px); }
 }
-
-
-
-
 
 @keyframes world-agent-focus {
   0%, 100% { transform: translateY(0) scale(1); }
@@ -1351,28 +1052,16 @@ p {
   76% { transform: translateY(-5px) scale(1.08); }
 }
 
-
-
-
-
 @keyframes world-light-sweep {
   0%, 18% { translate: -100% 0; }
   70%, 100% { translate: 100% 0; }
 }
-
-
-
-
 
 @keyframes furniture-pc-screen {
   0%, 32% { background-image: url("/office-assets/furniture/PC/PC_FRONT_ON_1.png"); }
   33%, 65% { background-image: url("/office-assets/furniture/PC/PC_FRONT_ON_2.png"); }
   66%, 100% { background-image: url("/office-assets/furniture/PC/PC_FRONT_ON_3.png"); }
 }
-
-
-
-
 
 @keyframes dot-pulse {
   0%,
@@ -1387,10 +1076,6 @@ p {
   }
 }
 
-
-
-
-
 @keyframes ambient-drift {
   from {
     transform: translate3d(-10%, -4%, 0) scale(0.92);
@@ -1400,10 +1085,6 @@ p {
     transform: translate3d(10%, 5%, 0) scale(1.08);
   }
 }
-
-
-
-
 
 @keyframes bubble-pop {
   from {
@@ -1417,33 +1098,21 @@ p {
   }
 }
 
-
-
-
-
 @keyframes button-sheen {
   to {
     transform: translateX(110%);
   }
 }
 
-
-
 .status-badge.status-running,
 .status-badge.status-awaiting_approval {
   animation: dot-pulse 1.3s ease-in-out infinite;
 }
 
-
-
 .status-badge.status-failed {
   border-color: var(--color-red);
   animation: status-shake 0.5s ease-in-out 1;
 }
-
-
-
-
 
 @keyframes status-shake {
   0%, 100% { transform: translateX(0); }
@@ -1452,132 +1121,14 @@ p {
   75% { transform: translateX(-2px); }
 }
 
-
-
-/* 코드 입력 칸은 안내 문단과 같은 줄에 서고 {
-  display: flex;
-  flex: 1 1 280px;
-  gap: 10px;
-  align-items: flex-end;
-}
-
-
-
-@media (max-width: 1180px) {
-.workspace-layout {
-    grid-template-columns: 1fr;
-  }
-
-.office-panel {
-    border-right: 0;
-    border-bottom: 1px solid var(--color-line);
-  }
-
-.office-world-heading {
-    flex-wrap: wrap;
-  }
-
-.office-world-body {
-    overflow-x: hidden;
-  }
-
-.office-world-stage {
-    width: 100%;
-    min-width: 0;
-    min-height: 0;
-  }
-
-.office-editor {
-    position: relative;
-    top: auto;
-    right: auto;
-    bottom: auto;
-    width: auto;
-    max-height: none;
-    margin: 12px;
-  }
-
-.zone-library .office-zone-heading,
-.zone-cafe .office-zone-heading {
-    top: calc(100% + 22px);
-  }
-
-.zone-lounge .office-zone-heading,
-.zone-dining .office-zone-heading {
-    top: -25px;
-  }
-
-/*
-   * 좁은 폭용 직원 배율 보정은 여기 있으면 안 된다. 크기는 이제 rAF 가 무대 크기에서
-   * 계산해(agentScale) transform 으로 주므로 {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    grid-template-rows: auto;
-  }
-}
-
-
-
-@media (max-width: 720px) {
-.app-shell {
-    padding: 0;
-  }
-
-.office-panel {
-    padding: 14px;
-  }
-
-.office-world-heading {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-.office-world-heading-tools {
-    flex-wrap: wrap;
-    width: 100%;
-    min-width: 0;
-  }
-
-.office-world-actions {
-    justify-content: space-between;
-    width: 100%;
-  }
-
-.office-world-heading .office-world-actions {
-    flex-wrap: wrap;
-  }
-
-.office-world-stage {
-    width: 100%;
-  }
-}
-
-
-
-@media (prefers-reduced-motion: reduce) {
-*,
-*::before,
-*::after {
-    animation: none !important;
-    scroll-behavior: auto !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-
-
-
-/* 한 화면 작업대: 바깥 문서는 고정하고 각 작업 면만 스크롤합니다. */
 html,
 body {
   height: 100%;
 }
 
-
-
 body {
   overflow: hidden;
 }
-
-
 
 .app-shell[data-draftroom-shell] {
   height: 100dvh;
@@ -1586,13 +1137,9 @@ body {
   overflow: hidden;
 }
 
-
-
 .button {
   min-height: 42px;
 }
-
-
 
 .workflow-strip {
   display: grid;
@@ -1607,8 +1154,6 @@ body {
   list-style: none;
 }
 
-
-
 .workflow-step {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
@@ -1622,8 +1167,6 @@ body {
   color: var(--color-muted);
 }
 
-
-
 .workflow-step-code {
   display: grid;
   width: 24px;
@@ -1636,8 +1179,6 @@ body {
   font-weight: 950;
 }
 
-
-
 .workflow-step strong,
 .workflow-step-status {
   overflow: hidden;
@@ -1645,21 +1186,15 @@ body {
   white-space: nowrap;
 }
 
-
-
 .workflow-step strong {
   color: var(--color-ink);
   font-size: 11px;
 }
 
-
-
 .workflow-step-status {
   font-size: 9px;
   font-weight: 850;
 }
-
-
 
 .workflow-step[data-status="running"],
 .workflow-step[data-status="awaiting_approval"] {
@@ -1667,26 +1202,18 @@ body {
   background: color-mix(in srgb, var(--color-amber) 12%, var(--color-frame));
 }
 
-
-
 .workflow-step[data-status="completed"] {
   border-color: var(--color-green);
 }
-
-
 
 .workflow-step[data-status="failed"] {
   border-color: var(--color-red);
   color: var(--color-red);
 }
 
-
-
 .workflow-step[data-active="true"] {
   box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--color-amber) 35%, transparent);
 }
-
-
 
 .workspace-layout,
 .office-panel {
@@ -1694,16 +1221,12 @@ body {
   min-width: 0;
 }
 
-
-
 .workspace-layout {
   grid-template-columns: minmax(0, 1fr) minmax(330px, 390px);
   height: 100%;
   min-height: 0;
   overflow: hidden;
 }
-
-
 
 .office-panel {
   display: flex;
@@ -1715,120 +1238,49 @@ body {
   border-bottom: 0;
 }
 
-
-
 .office-world {
   display: flex;
-  /* 줄어들 수 있어야 한다. flex-shrink 가 0 이면 무대 높이가 패널을 밀어내 바닥이 잘린다. */
+  
   flex: 1 1 auto;
   flex-direction: column;
-  /* 머리말 + 무대 하한이 들어갈 만큼. 이보다 좁은 패널에서는 뭉개지 말고 패널이 스크롤한다. */
+  
   min-height: 340px;
   width: 100%;
 }
 
-
-
-/* 라이브 오피스 — 지금 무슨 일이 일어나는지,
-무엇을 승인할지 {
-  display: grid;
-  flex: 0 0 auto;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-  gap: 8px;
-  padding: 8px 16px;
-  border-top: 1px solid var(--color-line);
-  background: var(--color-frame);
-}
-
-
-
-.workflow-step-owner {
-  grid-column: 2 / -1;
-  overflow: hidden;
-  color: var(--color-muted);
-  font-size: 9px;
-  font-weight: 750;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-
-
-.workflow-step-progress {
-  grid-column: 1 / -1;
-  width: 100%;
-  height: 4px;
-  border: 0;
-  border-radius: 999px;
-  background: var(--color-surface);
-  accent-color: var(--color-green);
-}
-
-
-
-.workflow-step-progress::-webkit-progress-bar {
-  border-radius: 999px;
-  background: var(--color-surface);
-}
-
-
-
-.workflow-step-progress::-webkit-progress-value {
-  border-radius: 999px;
-  background: var(--color-green);
-}
-
-
-
-/* 카메라가 방,
-복도,
-바닥을 같은 좌표계로 함께 움직입니다. */
 .office-world-body {
-  /* 무대가 남은 높이를 계산할 때 빼는 값이자 로비의 실제 높이다. 둘이 어긋나면 스크롤바가 생긴다. */
+  
   --lobby-h: 122px;
   position: relative;
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
   min-height: 0;
-  /* 무대 폭을 남은 높이에서 거꾸로 계산하려면 이 상자의 높이를 물어볼 수 있어야 한다. */
+  
   container-type: size;
-  /* 남은 높이가 하한(아래 560px)에도 못 미치는 창에서는 무대를 뭉개지 말고 여기서 스크롤한다. */
+  
   overflow: auto;
-  /*
-   * 무대 하한(560/2.4 = 233.33)보다 낮아질 수 없다. 이걸 부모(.office-world)의 min-height 로
-   * 잡으려면 머리말 높이를 알아야 하는데, 머리말은 폭 720px 이하에서 세로로 접혀 84 → 130px 이 된다.
-   * 추측 대신 상자 자신에게 걸어야 어느 폭에서도 넘치지 않는다.
-   */
+  
   min-height: 234px;
 }
 
-
-
 .office-world-stage {
   flex: 0 0 auto;
-  /*
-   * "전체 보기"는 층 전체를 보여 준다는 약속이다. 폭을 100% 로 두면 72:30 비율 때문에
-   * 높이가 패널을 넘겨 바닥 아래쪽이 잘렸다. 남은 높이에 맞춰 폭을 줄이고 가운데 세운다.
-   * 560px 은 하한이다 — 900x680(앱 최소 크기)에서는 남은 높이가 119px 뿐이라
-   * 그대로 두면 무대가 17px 로 뭉갠다. 그때는 줄이는 대신 부모가 스크롤한다.
-   */
+  
   width: min(100%, max(560px, calc((100cqh - var(--lobby-h)) * 72 / 30)));
   margin-inline: auto;
   background: var(--office-floor);
 }
 
-
-
 .office-lobby {
   position: relative;
   display: grid;
-  /* 남은 높이를 로비가 빨아들이면 무대가 다시 밀린다. 제 높이만 쓴다. */
+  
   flex: 0 0 auto;
   grid-template-columns: 0.9fr 1.2fr 1fr;
   gap: 6%;
   align-items: end;
-  /* 무대가 빼 둔 몫과 정확히 같아야 한다 — 어긋나면 전체 화면에서 스크롤바가 난다. */
+  
   height: var(--lobby-h);
   min-height: 104px;
   overflow: hidden;
@@ -1839,14 +1291,12 @@ body {
     linear-gradient(180deg, transparent 0 70%, color-mix(in srgb, var(--office-floor) 86%, var(--office-rug)) 70%),
     var(--office-wall-asset);
   background-size: auto, 32px 32px;
-  /* 벽돌 PNG도 회색 마스크다. 곱해야 테마 벽색이 비친다. */
+  
   background-blend-mode: normal, multiply;
   box-shadow: inset 0 -3px var(--office-wall-dark);
   color: var(--office-ink);
   pointer-events: none;
 }
-
-
 
 .office-lobby > div {
   position: relative;
@@ -1858,28 +1308,22 @@ body {
   text-align: center;
 }
 
-
-
 .office-lobby strong {
   display: block;
   padding: 5px 6px 2px;
   overflow: hidden;
   font-size: 9px;
   letter-spacing: 0.1em;
-  /* 간판 문구는 사용자가 정한 회사 이름이라 최대 32자까지 온다. 칸을 밀어내지 않고 한 줄로 자른다. */
+  
   white-space: nowrap;
   text-overflow: ellipsis;
 }
-
-
 
 .office-lobby span {
   display: block;
   font-size: 8px;
   font-weight: 800;
 }
-
-
 
 .office-lobby > .lobby-entrance {
   min-height: 76px;
@@ -1888,8 +1332,6 @@ body {
     color-mix(in srgb, var(--color-focus) 28%, var(--office-surface));
 }
 
-
-
 .lobby-elevators {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1897,13 +1339,9 @@ body {
   padding: 0 7px 7px;
 }
 
-
-
 .lobby-elevators strong {
   grid-column: 1 / -1;
 }
-
-
 
 .lobby-elevators i {
   height: 35px;
@@ -1913,36 +1351,17 @@ body {
     color-mix(in srgb, var(--office-wall-dark) 18%, var(--office-surface));
 }
 
-
-
-/*
- * 로비까지 들어갈 높이가 안 되면 로비를 접는다. 무대가 하한(560×233)에 걸린 채로 로비를 함께 그리면
- * 딱 그 차이만큼 .office-world-body 가 스크롤한다 — 1424×921 에서 실제로 15px 스크롤바가 났다.
- * 355px 은 임의값이 아니라 233.33 + 122(로비 높이)다. 뷰포트가 아니라 이 상자의 높이로 판단해야
- * 창 비율·확대 배율이 어떻든 어긋나지 않는다.
- */
 @container (max-height: 355px) {
   .office-lobby {
     display: none;
   }
 
-  /*
-   * 로비를 접었으면 무대가 그 몫까지 다 써야 한다. 안 그러면 로비가 없는데도 122px 을 계속 빼서
-   * 무대가 하한(560px)에 붙박이고, 1424×947 에서 쓸 수 있는 높이의 43% 만 쓴 채 아래가 텅 빈다.
-   * 변수를 무대에 얹는 이유 — 컨테이너 쿼리는 컨테이너 자신(.office-world-body)을 고를 수 없다.
-   */
+  
   .office-world-stage {
     --lobby-h: 0px;
   }
 }
 
-
-
-/*
- * 세로가 짧은 창에서는 위쪽 장치가 사무실 몫을 먹는다. 900x680(앱 최소 크기) 실측으로
- * 머리 74 + 컨트롤 183 + 워크플로 77 + 탭 51 이 664 중 385 를 가져가 사무실에 119 만 남았다.
- * 기능은 하나도 빼지 않고 세로 여백만 줄인다. 그래도 모자라면 패널이 스크롤한다.
- */
 @media (max-height: 760px) {
   .app-header {
     min-height: 0;
@@ -1969,13 +1388,9 @@ body {
 
 }
 
-
-
 .office-world-stage::before {
   display: none;
 }
-
-
 
 .office-world-camera {
   position: absolute;
@@ -1992,33 +1407,22 @@ body {
     32px 32px;
   background-blend-mode: normal, normal, soft-light;
   box-shadow: inset 0 0 70px color-mix(in srgb, var(--office-glow) 13%, transparent);
-  /* 변환은 rAF 루프가 매 프레임 목표로 감쇠 이동시키며 직접 쓴다 — 트랜지션은 그 위에서 튄다. */
+  
   transform-origin: center;
   will-change: transform;
 }
 
-
-
-/* 멀리서 볼 때는 이름표를 접는다. 35명이 붙어 서면 글자끼리 서로를 덮는다. */
 .office-world-camera[data-compact="true"] .world-agent-identity,
 .office-world-camera[data-compact="true"] .world-agent-status {
   opacity: 0;
 }
 
-
-
-/*
- * 사람은 타일에 맞춰 줄어들지만 글자는 그러면 못 읽는다. 줄어든 배율만큼 되돌린다.
- * --label-counter 는 rAF 가 무대 크기에서 계산해 카메라에 얹는다.
- */
 .world-agent-identity,
 .world-agent-status {
   scale: var(--label-counter, 1);
   transform-origin: center bottom;
   transition: opacity 0.18s ease;
 }
-
-
 
 .office-world-camera::before {
   position: absolute;
@@ -2040,12 +1444,9 @@ body {
   opacity: 0.55;
 }
 
-
-
-/* 끝난 공간에서 다음 공간으로 넘어가는 결과물 한 장. */
 .office-handoff {
   position: absolute;
-  /* 직원 레이어(z 8)보다 위. 서류는 누구 앞을 지나가도 가려지지 않는다. */
+  
   z-index: 60;
   left: var(--world-x);
   top: var(--world-y);
@@ -2061,10 +1462,6 @@ body {
   translate: -50% -50%;
   animation: office-handoff-fly 1.5s cubic-bezier(0.36, 0, 0.24, 1) both;
 }
-
-
-
-
 
 @keyframes office-handoff-fly {
   0% {
@@ -2092,13 +1489,6 @@ body {
   }
 }
 
-
-
-/* 천장 조명과 바닥 그늘. 층 전체를 한 장으로 덮어야 방마다 밝기가 따로 놀지 않는다. */
-/*
- * 바닥과 가구까지만 덮는다. 직원 레이어(z 8)와 그 안의 말풍선·안내창은 빛 위에 남아야
- * 글자 대비가 줄지 않는다. 직원 각자의 z는 그 레이어 안에서만 셈해지므로 여기서는 8 하나만 보면 된다.
- */
 .office-world-camera::after {
   position: absolute;
   z-index: 5;
@@ -2113,16 +1503,10 @@ body {
   pointer-events: none;
 }
 
-
-
-/* 끌 수 있다는 걸 알려 주는 줄. 밀어낼 여유가 있을 때만 띄운다. */
 .office-drag-hint {
   position: absolute;
   z-index: 40;
-  /*
-   * 카메라 조작(높이 26px + 아래 여백 8px) 바로 위에 앉힌다. 같은 줄에 두고 폭으로 피하려 했더니
-   * 버튼 묶음 폭이 로케일마다 189~289px 로 달라(id 가 가장 넓다) 좁은 무대에서 겹쳤다.
-   */
+  
   bottom: 42px;
   left: 10px;
   max-width: calc(100% - 20px);
@@ -2136,26 +1520,15 @@ body {
   pointer-events: none;
 }
 
-
-
 .office-world-stage.camera-pannable {
   cursor: grab;
   touch-action: none;
 }
 
-
-
 .office-world-stage.camera-pannable:active {
   cursor: grabbing;
 }
 
-
-
-/*
- * 전체 화면 연출은 바깥 UI 를 걷어 낸다. 카메라 조작은 무대 위에 얹혀 있어야 그때도 손에 남는다.
- * 오른쪽 아래인 이유: 공간 이름표는 늘 왼쪽 위에 붙어서,
-무대가 작아져도 여기서는 안 겹친다.
- */
 .office-camera-controls {
   position: absolute;
   z-index: 40;
@@ -2164,8 +1537,6 @@ body {
   display: flex;
   gap: 4px;
 }
-
-
 
 .office-camera-controls button {
   min-height: 26px;
@@ -2179,27 +1550,19 @@ body {
   cursor: pointer;
 }
 
-
-
 .office-camera-controls button:hover:not(:disabled) {
   border-color: var(--color-focus);
 }
-
-
 
 .office-camera-controls button:disabled {
   cursor: not-allowed;
   opacity: 0.44;
 }
 
-
-
 .office-camera-toggle[aria-pressed="true"] {
   border-color: var(--color-focus);
   box-shadow: inset 0 0 0 1px var(--color-focus);
 }
-
-
 
 .world-agent-select {
   position: absolute;
@@ -2212,16 +1575,11 @@ body {
   pointer-events: auto;
 }
 
-
-
 .world-agent-select:focus-visible {
   outline: 3px solid var(--color-focus);
   outline-offset: 2px;
 }
 
-
-
-/* 사람과 함께 줄면 글자가 5px대까지 내려간다. 이름표와 같은 역보정을 받아야 읽을 수 있다. */
 .world-agent-popover {
   scale: var(--label-counter, 1);
   transform-origin: left top;
@@ -2242,30 +1600,22 @@ body {
   pointer-events: auto;
 }
 
-
-
 .world-agent[data-popover-side="left"] .world-agent-popover {
   right: calc(100% + 8px);
   left: auto;
-  /* 오른쪽에 붙는 카드라 역보정도 그쪽 모서리를 축으로 잡아야 직원을 덮지 않는다. */
+  
   transform-origin: right top;
 }
-
-
 
 .world-agent-popover > strong {
   padding-right: 24px;
   font-size: 14px;
 }
 
-
-
 .world-agent-popover > span {
   color: var(--color-muted);
   font-size: 11px;
 }
-
-
 
 .world-agent-popover dl,
 .world-agent-popover dl > div {
@@ -2274,13 +1624,9 @@ body {
   margin: 0;
 }
 
-
-
 .world-agent-popover dl > div {
   grid-template-columns: 42px minmax(0, 1fr);
 }
-
-
 
 .world-agent-popover dt,
 .world-agent-popover dd {
@@ -2288,14 +1634,10 @@ body {
   font-size: 10px;
 }
 
-
-
 .world-agent-popover dt {
   color: var(--color-muted);
   font-weight: 850;
 }
-
-
 
 .world-agent-popover > button {
   position: absolute;
@@ -2311,9 +1653,6 @@ body {
   cursor: pointer;
 }
 
-
-
-/* 꾸미기는 월드 크기를 늘리지 않는 오버레이입니다. */
 .office-editor {
   position: absolute;
   z-index: 40;
@@ -2324,8 +1663,6 @@ body {
   max-height: none;
   margin: 0;
 }
-
-
 
 @media (max-width: 1180px) {
 .app-shell[data-draftroom-shell] {
@@ -2348,8 +1685,6 @@ body {
     grid-template-columns: repeat(5, minmax(118px, 1fr));
   }
 }
-
-
 
 @media (max-width: 720px) {
 .app-shell[data-draftroom-shell] {
@@ -2376,8 +1711,6 @@ body {
     width: 180px;
   }
 }
-
-
 
 @media (prefers-reduced-motion: reduce) {
 .office-world-camera {

@@ -1,4 +1,4 @@
-/* 데모 셸 전용 스타일 — 제품 스타일(globals.css)은 손대지 않고 그 위에 얹습니다. */
+/* Demo-shell styles — layered on top of globals.css without touching it. */
 .demo-shell {
   min-height: 100vh;
   display: flex;
@@ -55,7 +55,7 @@
   font-weight: 700;
 }
 
-/* 데모는 결과 도크 없이 오피스 한 면만 쓴다. */
+/* The demo uses only the office pane; there is no results dock. */
 .demo-layout {
   display: block;
   flex: 1;

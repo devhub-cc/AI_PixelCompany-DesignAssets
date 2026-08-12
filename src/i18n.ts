@@ -8,9 +8,9 @@
  * while `app/game/office-world.ts` directly stores theme, furniture, and amenity-space names as `LocalizedText`.
  */
 
-export const LOCALES = ["ko", "en", "zh", "vi", "id"] as const;
+export const LOCALES = ["en", "zh", "ko", "vi", "id"] as const;
 export type Locale = (typeof LOCALES)[number];
-export const DEFAULT_LOCALE: Locale = "ko";
+export const DEFAULT_LOCALE: Locale = "en";
 
 /** Display names attached to data. Compilation fails if any language is missing. */
 export type LocalizedText = Readonly<Record<Locale, string>>;
@@ -24,7 +24,7 @@ export const LOCALE_LABELS: Record<Locale, string> = {
   id: "Bahasa Indonesia",
 };
 
-/** Values from save files, IPC, or the UI must all pass through here. Unknown values quietly fall back to Korean. */
+/** Values from save files, IPC, or the UI must all pass through here. Unknown values quietly fall back to the default locale. */
 export function checkedLocale(value: unknown): Locale {
   return LOCALES.includes(value as Locale) ? (value as Locale) : DEFAULT_LOCALE;
 }
