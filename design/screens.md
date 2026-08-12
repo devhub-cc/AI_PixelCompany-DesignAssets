@@ -1,30 +1,32 @@
-# 화면 원칙
+# Screen Principles
 
-제품 화면이 지키는 규칙들입니다. 데모에도 같은 원칙이 적용되어 있습니다.
+These rules govern every product screen and also apply to the demo.
 
-## 구조
+## Structure
 
 ```text
 ┌────────────────────────────────────────────────────┐
-│ 제품명 · 연결 상태 · 설정                          │
+│ Product name · connection status · settings        │
 ├────────────────────────────────────────────────────┤
-│ 입력 · 현재 상태에서 가능한 동작만                 │
+│ Input · available actions in the current state     │
 ├────────────────────────────────────────────────────┤
-│ 다섯 업무 단계 상태띠                              │
+│ Five-stage workflow status strip                   │
 ├───────────────────────────────┬────────────────────┤
-│ 하나로 연결된 탑다운 오피스   │ 결과 / 작업 기록   │
+│ Connected top-down office     │ Output / work log  │
 └───────────────────────────────┴────────────────────┘
 ```
 
-## 원칙
+## Principles
 
-1. **가짜 진행률 없음.** 상태띠는 실제 이벤트로만 바뀌고, 퍼센트·가상 시계를 표시하지 않습니다.
-   타이머로 차오르는 진행바는 이 제품에 존재하지 않습니다.
-2. **상태별 동작만 노출.** 실행·승인·저장 버튼은 그 동작이 실제로 가능한 상태에서만 활성화됩니다.
-3. **어두운 프레임, 따뜻한 무대.** 차콜 프레임(`--color-app`)이 크림 오피스(`--color-floor`)를
-   감싸 시선을 오피스에 모읍니다.
-4. **오류는 조용히.** 오류가 있을 때만 상태띠 아래 작은 경고 한 줄 — 별도 대시보드나 의미 없는
-   수치 카드를 두지 않습니다.
-5. **반응형은 한 기준.** 1180px 이하에서는 오피스/결과/기록을 탭으로 한 면씩 보여 줍니다.
-6. **접근성.** `prefers-reduced-motion`이 켜져 있으면 큰 동작 대신 정적인 집중 표시를 유지합니다
-   (데모에도 동일하게 동작).
+1. **No fake progress.** The status strip changes only in response to real events and shows no percentages or
+   simulated clocks. This product has no timer-driven progress bars.
+2. **Show only state-appropriate actions.** Run, approve, and save buttons are enabled only when those actions
+   are actually available.
+3. **Dark frame, warm stage.** The charcoal frame (`--color-app`) surrounds the cream office
+   (`--color-floor`), drawing attention to the office.
+4. **Keep errors quiet.** Show a single small warning line below the status strip only when an error exists—no
+   separate dashboard or meaningless metric cards.
+5. **Use one breakpoint for the pane layout.** At 1180px and below, show the office, output, and work log one at
+   a time in tabs.
+6. **Accessibility.** When `prefers-reduced-motion` is enabled, retain a static focus indicator instead of large
+   movements. The demo behaves the same way.

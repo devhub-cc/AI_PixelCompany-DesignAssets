@@ -1,31 +1,34 @@
-# 오피스 평면 — 72×30 타일 하나의 큰 사무실
+# Office Floor Plan — One Large 72×30-Tile Office
 
-분리된 카드 여러 장이 아니라 **하나의 연결된 평면**입니다. 다섯 업무 공간과 네 편의 공간이
-벽과 열린 문, 공용 복도로 이어지고, 평면 아래 남는 높이는 출입구·안내 데스크·엘리베이터가 있는
-공용 로비가 채웁니다. 전체 정의는 `src/game/office-world.ts` 한 파일이 진실입니다.
+This is **one connected floor plan**, not a set of separate cards. Walls, open doors, and shared corridors
+connect five workspaces and four amenity spaces. A shared lobby with an entrance, reception desk, and elevator
+fills the remaining height below the floor plan. The complete definition in `src/game/office-world.ts` is the
+single source of truth.
 
-## 공간 구성
+## Space Layout
 
-| 구역 | 성격 |
+| Area | Purpose |
 |---|---|
-| 브리핑룸 · 독자 분석실 · 아이디어룸 · 제작 스튜디오 · 교정실 | 5개 업무 공간 — 서로 다른 가구 구성·방향·러그 |
-| 도서관 · 카페 · 휴게실 · 식당 | 편의 공간 — 지원 인력의 고정석 |
-| 공용 로비 | 출입구·안내 데스크·엘리베이터 |
+| Briefing Room · Audience Lab · Idea Room · Production Studio · Edit Room | Five workspaces, each with a distinct furniture layout, orientation, and rug |
+| Library · Café · Lounge · Dining Room | Amenity spaces with assigned seats for support staff |
+| Shared lobby | Entrance, reception desk, and elevator |
 
-## 좌석과 이동 규칙 (디자인 원칙)
+## Seating and Movement Rules (Design Principles)
 
-- 정원은 5~35명(기본 20). 각 공간의 담당자 5명과 첫 지원 인력은 업무실에, 나머지는 편의 공간에
-  앉습니다.
-- 대기 중에는 지원 인력의 20~40%가 공용 복도를 왕복합니다 — 화면이 살아 있게 만드는 핵심 장치.
-- 과업이 시작되면 산책자는 자기 자리로 복귀하고(복귀할 때만 2배 속도), 전원이 집중 신호를
-  보입니다.
-- 벽·문·가구가 차지한 타일은 경로 탐색에서 막히고, 문 앞과 주요 통로는 **보호 타일**로 지정되어
-  가구를 놓을 수 없습니다 — 길이 막히는 배치를 저장 단계 전에 차단합니다.
-- 40×40 전수 도달성 검사가 테스트로 존재해, 어떤 좌석에서도 어떤 문까지 길이 끊기지 않음을
-  보증합니다(원 저장소).
+- Capacity is 5–35 people (20 by default). The five workspace leads and each workspace's first support staff
+  member sit in the workrooms; everyone else sits in the amenity spaces.
+- While idle, 20–40% of support staff stroll back and forth through the shared corridors—a key device for
+  making the screen feel alive.
+- When a task begins, strollers return to their seats at twice their normal speed (only while returning), and
+  everyone displays a focus signal.
+- Tiles occupied by walls, doors, or furniture are blocked during pathfinding. Tiles in front of doors and along
+  major routes are designated as **protected tiles**, so furniture cannot be placed there. This prevents layouts
+  that block paths before they are saved.
+- An exhaustive 40×40 reachability test guarantees that every seat retains a path to every door (in the original
+  repository).
 
-## 가구 편집
+## Furniture Editing
 
-사용자는 세 가지 스타일과 25종 가구를 골라 배치·이동·회전·색상 변경할 수 있고, 결과는 로컬에
-저장됩니다(이 데모에서는 저장 대신 웹 미리보기 상태로 동작). 편집 UI는 `src/OfficeWorld.tsx`에
-있습니다.
+Users can choose from three styles and 25 furniture types, then place, move, rotate, and recolor them. Changes
+are saved locally (this demo uses web preview state instead of persistence). The editing UI is in
+`src/OfficeWorld.tsx`.

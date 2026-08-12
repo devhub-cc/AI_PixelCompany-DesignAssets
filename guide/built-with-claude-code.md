@@ -1,48 +1,49 @@
-# Claude Code로 만든 과정 (Making-of)
+# How This Was Built with Claude Code (Making-of)
 
-이 픽셀 오피스는 사람이 방향을 정하고 **Claude Code가 코드를 쓰는** 방식으로 만들어졌습니다.
-따라 만들기 튜토리얼이 아니라, 실제로 지켰던 작업 방식의 기록입니다.
+This pixel office was built with people setting the direction and **Claude Code writing the code**. This is not
+a step-by-step tutorial; it records the working practices we actually followed.
 
-## 1. 설정을 한 곳에 모으는 것부터
+## 1. Start by Centralizing Configuration
 
-제품명·색·공간 이름 같은 "정체성"을 `company.config.ts` 한 파일로 몰았습니다. 덕분에 AI에게
-"보라색 방을 초록으로 바꿔줘" 같은 지시가 파일 한 곳 수정으로 끝나고, 사람이 검토할 diff도
-작아집니다. CSS에 색을 직접 적으면 테스트가 실패하도록 만들어 이 규칙이 무너지지 않게 했습니다.
+We put identity-defining values such as the product name, colors, and workspace names in one file:
+`company.config.ts`. As a result, an instruction such as "change the purple room to green" requires editing only
+one file and produces a smaller diff for human review. Tests fail if colors are hardcoded in CSS, keeping this
+rule intact.
 
-## 2. 월드는 코드가 진실
+## 2. Code Is the Source of Truth for the World
 
-사무실 평면(72×30)·벽·문·좌석·보호 통로를 그림 파일이 아니라 `office-world.ts`의 데이터로
-정의했습니다. AI가 "식당을 두 칸 넓혀줘"를 수행하면 경로 탐색·좌석 배정이 같은 데이터를 읽으므로
-그림과 동작이 어긋날 수 없습니다.
+The 72×30 office floor plan, walls, doors, seats, and protected paths are defined as data in `office-world.ts`,
+not in an image file. When the AI carries out a request such as "make the dining room two tiles wider,"
+pathfinding and seat assignment read the same data, so the visuals and behavior cannot drift apart.
 
-## 3. 가짜를 금지하는 규칙을 문서로
+## 3. Document the Rules Against Fake Behavior
 
-"타이머로 차는 진행률, 고정 대사, 가짜 완료 결과를 추가하지 않는다"를 프로젝트 규칙 문서에
-박아 두고, AI가 작업할 때마다 그 규칙을 읽게 했습니다. 데모·연출이 필요하면 별도 모드로 격리하고
-실제 화면에는 새지 않게 했습니다.
+We wrote "do not add timer-driven progress, fixed dialogue, or fake completion results" into the project rules
+and made the AI read those rules before every task. When a demo or staged presentation is necessary, it is
+isolated in a separate mode so it cannot leak into the real interface.
 
-## 4. 측정으로 검증 — "고친 곳"이 아니라 "고쳐야 할 것"을 잰다
+## 4. Verify by Measurement—Measure What Needs Fixing, Not What Was Fixed
 
-개발 중 다섯 번의 검증 실패가 있었고, 전부 같은 원인이었습니다: 측정은 했는데 **측정 대상을 잘못
-골랐습니다**(다른 요소를 재거나, 한 축만 쓸거나, 너무 이른 시점에 재거나). 그 뒤로 화면 검증은
-요소·축·시점을 갈라서 재고, "테스트 통과" 초록불이 어떤 검사를 실제로 돌렸는지 스크립트를 열어
-확인합니다.
+Five verification failures occurred during development, all for the same reason: we measured something, but
+**chose the wrong thing to measure**—a different element, only one axis, or a point too early in time. Since then,
+we have measured the element, axis, and timing separately during screen verification. We also open the script to
+confirm which checks a green "tests passed" indicator actually ran.
 
-## 5. 실제로 쓰는 프롬프트 패턴
+## 5. Prompt Pattern Used in Practice
 
 ```text
-목표: (한 문장)
-현재 상태: (파일·동작 기준으로)
-완료 정의: (무엇이 어떻게 보이면/동작하면 끝인지)
-금지: (건드리면 안 되는 파일·규칙)
-검증: (끝났다고 말하기 전에 무엇을 실행해 확인할지)
+Objective: (one sentence)
+Current state: (in terms of files and behavior)
+Definition of done: (what it must look like or how it must behave to count as complete)
+Do not: (files and rules that must not be touched)
+Verification: (what to run before declaring completion)
 ```
 
-지시가 이 다섯 줄을 갖추면 AI의 결과물이 눈에 띄게 안정됩니다. 반대로 "알아서 예쁘게"는
-다시 쓰게 되는 지시의 전형이었습니다.
+When an instruction includes these five lines, the AI's output becomes noticeably more reliable. By contrast,
+"make it look good" was a classic example of an instruction that led to rework.
 
-## 6. 사람이 하는 일
+## 6. What People Do
 
-방향 결정, 우선순위, 승인, 그리고 **의심**. AI가 "완료했습니다"라고 말해도 실행해 보기 전에는
-완료가 아닙니다. 이 저장소의 데모가 실제로 브라우저에서 돌아가는 것도, 푸시 전에 사람이 직접
-띄워 확인하는 절차를 지켰기 때문입니다.
+Set direction, prioritize, approve, and **stay skeptical**. Even when the AI says "done," the work is not complete
+until someone runs it. This repository's demo works in a browser because a person launched and verified it before
+every push.
