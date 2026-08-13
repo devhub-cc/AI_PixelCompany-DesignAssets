@@ -46,8 +46,8 @@ Open http://localhost:5173 in your browser.
 
 ## Not included
 
-The AI content features (topic analysis, idea generation, script writing) are **not** in this
-repository — they live in the finished app only. This pack is the visual world and its motion.
+The AI content features (topic analysis, idea generation, script writing) are **not included** in
+this public repository or demo. This pack contains only the visual world and its motion.
 
 ## Rights
 
@@ -90,8 +90,8 @@ npm run dev
 
 ### 不包含
 
-AI 内容生成功能（主题分析、创意生成、脚本撰写）**不在**本仓库中，它们只存在于成品应用里。
-本资源包只包含视觉世界及其动作。
+本公开仓库和演示**不包含** AI 内容生成功能（主题分析、创意生成、脚本撰写）。
+本资源包仅包含视觉世界及其动作。
 
 ### 权利说明
 
@@ -134,8 +134,8 @@ npm run dev
 
 ### 含まれないもの
 
-AI コンテンツ機能（トピック分析・アイデア生成・台本作成）は本リポジトリには**含まれません** —
-完成アプリにのみ存在します。本パックはビジュアルワールドとそのモーションです。
+この公開リポジトリおよびデモには、AI コンテンツ機能（トピック分析・アイデア生成・台本作成）は
+**含まれていません**。本パックに含まれるのはビジュアルワールドとそのモーションのみです。
 
 ### 権利について
 
